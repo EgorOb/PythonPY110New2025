@@ -7,8 +7,12 @@
 <body>
 
     <footer>
-        <p>&copy; 2023 Мой блог. Все права защищены.</p>
+        <p id="copyright" >&copy; 2023. Мой блог. Все права защищены.</p>
     </footer>
+
+    <script>
+    document.getElementById('copyright').innerHTML = '&copy; ' + new Date().getFullYear() + '. Мой блог. Все права защищены.';
+    </script>
 
 </body>
 </html>
