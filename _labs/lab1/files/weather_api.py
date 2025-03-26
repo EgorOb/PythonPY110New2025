@@ -1,4 +1,5 @@
 import requests
+from pprint import pprint
 from datetime import datetime
 
 # Словарь перевода значений направления ветра
@@ -27,27 +28,25 @@ def current_weather(lat, lon):
     """
     Описание функции, входных и выходных переменных
     """
-    token = 'Ваш токен'  # Вставить ваш токен
-    url = f"https://api.weather.yandex.ru/v2/forecast?lat={lat}&lon={lon}"  # Если вдруг используете тариф «Погода на вашем сайте»
-    # то вместо forecast используйте informers. url = f"https://api.weather.yandex.ru/v2/informers?lat={lat}&lon={lon}"
-    headers = {"X-Yandex-API-Key": f"{token}"}
-    response = requests.get(url, headers=headers)
+    token = 'Ваш токен'  # Вставить ваш токен из api.weatherapi.com
+    url = f"https://api.weatherapi.com/v1/current.json?key={token}&q={lat},{lon}"
+    response = requests.get(url)
     data = response.json()
 
-    # Данная реализация приведена для тарифа «Тестовый», если у вас Тариф «Погода на вашем сайте», то закомментируйте пару строк указанных ниже
+    # Данная реализация приведена для api.weatherapi.com
     result = {
-        'city': data['geo_object']['locality']['name'],  # Если используете Тариф «Погода на вашем сайте», то закомментируйте эту строку
-        'time': datetime.fromtimestamp(data['fact']['uptime']).strftime("%H:%M"),  # Если используете Тариф «Погода на вашем сайте», то закомментируйте эту строку
-        'temp': 'реализация',  # TODO Реализовать вычисление температуры из данных полученных от API
-        'feels_like_temp': 'реализация',  # TODO Реализовать вычисление ощущаемой температуры из данных полученных от API
-        'pressure': 'реализация',  # TODO Реализовать вычисление давления из данных полученных от API
-        'humidity': 'реализация',  # TODO Реализовать вычисление влажности из данных полученных от API
-        'wind_speed': 'реализация',  # TODO Реализовать вычисление скорости ветра из данных полученных от API
-        'wind_gust': 'реализация',  # TODO Реализовать вычисление скорости порывов ветка из данных полученных от API
-        'wind_dir': DIRECTION_TRANSFORM.get(data['fact']['wind_dir']),  # Если используете Тариф «Погода на вашем сайте», то закомментируйте эту строку
+        'city': data['location']['name'],  # Город
+        'time': data['current']['last_updated'],  # Время обновления данных
+        'temp': 'необходимо реализовать по таблице',  # TODO Реализовать вычисление температуры из данных полученных от API
+        'feels_like_temp': 'необходимо реализовать по таблице',  # TODO Реализовать вычисление ощущаемой температуры из данных полученных от API
+        'pressure': 'необходимо реализовать по таблице',  # TODO Реализовать вычисление давления из данных полученных от API
+        'humidity': 'необходимо реализовать по таблице',  # TODO Реализовать вычисление влажности из данных полученных от API
+        'wind_speed': 'необходимо реализовать по таблице',  # TODO Реализовать вычисление скорости ветра из данных полученных от API
+        'wind_gust': 'необходимо реализовать по таблице',  # TODO Реализовать вычисление скорости порывов ветка из данных полученных от API
+        'wind_dir': DIRECTION_TRANSFORM.get(data['current']['wind_dir'].lower()),  # Направление ветра
     }
     return result
 
 
 if __name__ == "__main__":
-    print(current_weather(59.93, 30.31))  # Проверка работы для координат Санкт-Петербурга
+    pprint(current_weather(59.93, 30.31))  # Проверка работы для координат Санкт-Петербурга
