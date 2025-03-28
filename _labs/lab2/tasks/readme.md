@@ -59,9 +59,27 @@ python manage.py runserver
 
 ![0.png](pic_for_task/0.png)
 
-Приложение выглядит совсем пустым, поэтому напишем пару представлений
+> Для того чтобы остановить сервер в терминале, где запустили ваш сервер, нажмите сочетание клавиш `Ctrl + C` (то же сочетание
+как когда копируете в буфер обмена). Теперь ваш сервер остановлен и приложение не функционирует.
+
+> Для того чтобы снова запустить сервер можно или снова написать команду для старта сервера или нажмите на клавиатуре стрелку вверх,
+для отображения последних команд, так вы можете используя стрелки вверх, вниз посмотреть последние команды которые были запущены в данном
+терминале и нажав на Enter запустить выбранную команду.
+
+> Существует еще способ запустить сервер без написания команды для запуска сервера. Для этого:
+
+  > - Остановите сервер;
+  > - Нажмите правой кнопкой мыши на файл `manage.py` затем выберите `More Run/Debug`, затем `Modify Run Configuration...`
+  > - В строке `Parameters` напишите `runserver` и нажмите OK
+
+![0_1.png](pic_for_task/0_1.png)
+
+Теперь при запуске `manage.py` у вас будет запускаться сервер. Останавливается сервер в этом случае как и любой скрипт
+нажатием на красный квадрат для остановки скрипта.
 
 ### Раздел 2. Создание представлений (функций которые возвращают данные для ответа)
+
+Приложение выглядит совсем пустым, поэтому напишем пару представлений.
 
 #### 2.1 Напишем представление для получения случайного числа от сервера
 
@@ -83,7 +101,7 @@ def random_view(request):
 
 Функция представления `ОБЯЗАТЕЛЬНО должна что-то возвращать`. Чаще всего она возвращает объект `HttpResponse` именно 
 `HttpResponse` и другие объекты такие как `JsonResponse`, `FileResponse` и т.д. создают данные нужного типа для отправления
-их пользователю.
+их пользователю. Функция обязательно должна принимать входной параметр `request`.
 
 Строка `request.method == "GET"` разграничивает код отображения для выполнения запроса `GET` (вспоминаем разные типы запросов)
 
@@ -351,7 +369,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 500,
                   'category': 'Овощи',
                   'id': 1,
-                  'url': 'store/images/product-1.jpg',
+                  'url': 'app_store/images/product-1.jpg',
                   'html': 'bell_pepper'
                   },
             '2': {'name': 'Клубника',
@@ -365,7 +383,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 400,
                   'category': 'Фрукты',
                   'id': 2,
-                  'url': 'store/images/product-2.jpg',
+                  'url': 'app_store/images/product-2.jpg',
                   'html': 'strawberry'
                   },
             '3': {'name': 'Стручковая фасоль',
@@ -379,7 +397,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 600,
                   'category': 'Овощи',
                   'id': 3,
-                  'url': 'store/images/product-3.jpg',
+                  'url': 'app_store/images/product-3.jpg',
                   'html': 'green_beans'
                   },
             '4': {'name': 'Краснокочанная капуста',
@@ -393,7 +411,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 300,
                   'category': 'Овощи',
                   'id': 4,
-                  'url': 'store/images/product-4.jpg',
+                  'url': 'app_store/images/product-4.jpg',
                   'html': 'purple_cabbage'
                   },
             '5': {'name': 'Помидоры',
@@ -407,7 +425,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 300,
                   'category': 'Овощи',
                   'id': 5,
-                  'url': 'store/images/product-5.jpg',
+                  'url': 'app_store/images/product-5.jpg',
                   'html': 'tomatoes'
                   },
             '6': {'name': 'Брокколи',
@@ -421,7 +439,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 300,
                   'category': 'Овощи',
                   'id': 6,
-                  'url': 'store/images/product-6.jpg',
+                  'url': 'app_store/images/product-6.jpg',
                   'html': 'broccoli'
                   },
             '7': {'name': 'Морковь',
@@ -435,7 +453,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 900,
                   'category': 'Овощи',
                   'id': 7,
-                  'url': 'store/images/product-7.jpg',
+                  'url': 'app_store/images/product-7.jpg',
                   'html': 'carrots'
                   },
             '8': {'name': 'Фруктовый сок',
@@ -449,7 +467,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 1200,
                   'category': 'Соки',
                   'id': 8,
-                  'url': 'store/images/product-8.jpg',
+                  'url': 'app_store/images/product-8.jpg',
                   'html': 'fruit_juice'
                   },
             '9': {'name': 'Лук',
@@ -463,7 +481,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                   'weight_in_stock': 350,
                   'category': 'Овощи',
                   'id': 9,
-                  'url': 'store/images/product-9.jpg',
+                  'url': 'app_store/images/product-9.jpg',
                   'html': 'onion'
                   },
             '10': {'name': 'Яблоки',
@@ -477,7 +495,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                    'weight_in_stock': 200,
                    'category': 'Фрукты',
                    'id': 10,
-                   'url': 'store/images/product-10.jpg',
+                   'url': 'app_store/images/product-10.jpg',
                    'html': 'apple'
                    },
             '11': {'name': 'Чеснок',
@@ -491,7 +509,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                    'weight_in_stock': 1000,
                    'category': 'Овощи',
                    'id': 11,
-                   'url': 'store/images/product-11.jpg',
+                   'url': 'app_store/images/product-11.jpg',
                    'html': 'garlic'
                    },
             '12': {'name': 'Перец Чили',
@@ -505,7 +523,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
                    'weight_in_stock': 50,
                    'category': 'Овощи',
                    'id': 12,
-                   'url': 'store/images/product-12.jpg',
+                   'url': 'app_store/images/product-12.jpg',
                    'html': 'chilli'
                    },
             }
