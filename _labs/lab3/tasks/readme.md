@@ -207,35 +207,37 @@ https://www.ozon.ru/product/chistyy-python-tonkosti-programmirovaniya-dlya-profi
 Который бы разбил адресную строку как бы нам было нужно.
 
 
-*Передача параметров с типом `int`*
+#### 3.2 *Передача параметров с типом `int`*
 
-В нашем случае магазин маленький и можно облегчить задачу и передавать не только по имени товара, но и по его `id` в базе данных.
+В нашем случае магазин маленький и можно облегчить задачу и получать страницу товара не только по имени товара, 
+но и по его `id` в базе данных.
 
-Здесь нам поможет параметр `int`. Создадим маршрут
+Здесь нам поможет параметр `int`. Создадим маршрут в `urls.py` приложения `app_store`
 
 ```python
 path('product/<int:page>', product_page_view),
 ```
 
 Вы не ошиблись, мы создали 2 различных маршрута (один с `slug` другой с `int`) и привязали к одному представлению. Данный
-подход имеет место на практике, но тогда необходимо переписать наше представление, чтобы оно могло обрабатывать
-и тип `slug` и тип `int` который может прийти в переменной `page` функции `product_page_view`
+подход имеет место на практике, но тогда представление должно поддерживать данную вариацию
+типа `slug` и типа `int` который может прийти в переменной `page` функции `product_page_view`
 
-Допишем данную функцию:
+Допишите `product_page_view` следующим кодом:
 
 ```python
 def product_page_view(request, page):
     if request.method == "GET":
-        if isinstance(page, str):
-            # TODO Вставьте сюда тот код, что был ранее для обработки типа slug в product_page_view
-        elif isinstance(page, int):
+        if isinstance(page, str): # Ветка для обработки типа slug
+            # TODO Ваш код для обработки slug в product_page_view
+        
+        elif isinstance(page, int): # Ветка для обработки типа int
             data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
-            if data:  # Если по данному page было найдено значение 
-                # TODO 1. Откройте файл open(f'store/products/{data["html"]}.html', encoding="utf-8") (Не забываем про контекстный менеджер with)
-                # TODO 2. Прочитайте его содержимое
-                # TODO 3. Верните HttpResponse c содержимым html файла
-
+            if data:  # Если по данному page было найдено значение
+                with open(f'app_store/product/{data["html"]}.html', encoding="utf-8") as f: # Определяем название файла для открытия
+                    return HttpResponse(f.read())
+        
         return HttpResponse(status=404)
+
 ```
 
 Теперь можно обратиться по адресу http://127.0.0.1:8000/product/9 , который вернет товар "Лук"
@@ -248,14 +250,15 @@ def product_page_view(request, page):
 
 Нашей текущей задачей будет реализовать фильтрацию, но реализуем мы её со стороны сервера, а визуальной реализацией займемся на следующей практике.
 
-Что необходимо будет сделать:
+Скопируйте папку `logic` из `_labs/lab3/files` в корне проекта. 
 
-Создадим папку `logic` в корне проекта (в папке DjangoPy110). В папке `logic` создадим файл `services.py` в нём мы будем
-писать скрипты обработки данных.
+В скопированной папке `logic` содержится файл `services.py` в нём мы будем дописывать скрипты обработки данных.
 
-В файле `services.py` напишем функцию `filtering_category` которая будет возвращать список товаров(список словарей с параметрами товаров)
-выполняющие условия фильтрации. Ниже приведен шаблон данной функции, которую необходимо заполнить. Также приведен тестирующий пример, 
+> В файле `services.py` необходимо дописать функцию `filtering_category` которая будет возвращать список товаров (список словарей с параметрами товаров)
+выполняющие условия фильтрации. В блоке `if __name__ == "__main__"` приведен тестирующий пример, 
 для проверки правильности работы.
+
+Копировать приведенный ниже код не нужно, он есть в `services.py`. Код дан для визуального представления, что требуется
 
 ```python
 def filtering_category(database: dict[str, dict],
@@ -265,7 +268,7 @@ def filtering_category(database: dict[str, dict],
     """
     Функция фильтрации данных по параметрам
 
-    :param database: База данных. (словарь словарей. При проверке в качестве database будет передаваться словарь DATABASE из models.py)
+    :param database: База данных товаров. (словарь словарей. При проверке в качестве database будет передаваться словарь DATABASE из models.py)
     :param category_key: [Опционально] Ключ для группировки категории. Если нет ключа, то рассматриваются все товары.
     :param ordering_key: [Опционально] Ключ по которому будет произведена сортировка результата.
     :param reverse: [Опционально] Выбор направления сортировки:
@@ -275,15 +278,15 @@ def filtering_category(database: dict[str, dict],
     то возвращается пустой список
     """
     if category_key is not None:
-        result = ...  #  TODO При помощи фильтрации в list comprehension профильтруйте товары по категории (ключ 'category') в продукте database. Или можете использовать
+        result = ...  # TODO При помощи фильтрации в list comprehension профильтруйте товары по категории (ключ 'category') в продукте database. Или можете использовать
         # обычный цикл или функцию filter. Допустим фильтрацию в list comprehension можно сделать по следующему шаблону
-        # [product for product in database.values() if ...] подумать, что за фильтрующее условие можно применить. 
+        # [product for product in database.values() if ...] подумать, что за фильтрующее условие можно применить.
         # Сравните значение категории продукта со значением category_key
     else:
-        result = ... #  TODO Трансформируйте словарь словарей database в список словарей
+        result = ...  # TODO Трансформируйте словарь словарей database в список словарей
         # В итоге должен быть [dict, dict, dict, ...], где dict - словарь продукта из database
     if ordering_key is not None:
-        ... #  TODO Проведите сортировку result по ordering_key и параметру reverse
+        ...  # TODO Проведите сортировку result по ordering_key и параметру reverse
         # Так как result будет списком, то можно применить метод sort, но нужно определиться с тем по какому элементу сортируем и в каком направлении
         # result.sort(key=lambda ..., reverse=reverse)
         # Вспомните как можно сортировать по значениям словаря при помощи lambda функции
@@ -291,7 +294,7 @@ def filtering_category(database: dict[str, dict],
 
 
 if __name__ == "__main__":
-    from store.models import DATABASE
+    from app_store.models import DATABASE
 
     test = [
         {'name': 'Клубника', 'discount': None, 'price_before': 500.0,
@@ -299,49 +302,52 @@ if __name__ == "__main__":
          'description': 'Сладкая и ароматная клубника, полная витаминов, чтобы сделать ваш день ярче.',
          'rating': 5.0, 'review': 200, 'sold_value': 700,
          'weight_in_stock': 400,
-         'category': 'Фрукты', 'id': 2, 'url': 'store/images/product-2.jpg',
+         'category': 'Фрукты', 'id': 2, 'url': 'app_store/images/product-2.jpg',
          'html': 'strawberry'},
-        
+
         {'name': 'Яблоки', 'discount': None, 'price_before': 130.0,
          'price_after': 130.0,
          'description': 'Сочные и сладкие яблоки - идеальная закуска для здорового перекуса.',
          'rating': 4.7, 'review': 30, 'sold_value': 70, 'weight_in_stock': 200,
-         'category': 'Фрукты', 'id': 10, 'url': 'store/images/product-10.jpg',
+         'category': 'Фрукты', 'id': 10, 'url': 'app_store/images/product-10.jpg',
          'html': 'apple'}
     ]
+    # Проверяем корректность выполнения функции
+    print('Проверка фильтрации: ', filtering_category(DATABASE, 'Фрукты', 'price_after', True) == test)  # True
 
-    print(filtering_category(DATABASE, 'Фрукты', 'price_after', True) == test)  # True
 ```
 
-Далее допишем представление `products_view` во `views.py` приложения `app_store`.
+Далее допишем представление `product_view` во `views.py` приложения `app_store`.
 
 Во `views.py` приложения `app_store` импортируйте `filtering_category` из `logic.services`
 
 Ниже приведена заготовка с разветвлениями, которую необходимо заполнить для корректной работы. В целом необходимо правильно
 прописать значения в переменной `data` в ветке `if category_key := request.GET.get("category"):`. 
-Ветку `if id_product := request.GET.get("id"):` вы уже реализовывали ранее.
+Ветку `if id_ := request.GET.get("id"):` вы уже реализовывали ранее.
 
-Внимательно проверьте правильно ли вы работаете с условиями. Так как в обработчике `products_view` сначала проверяется
+Внимательно проверьте правильно ли вы работаете с условиями. Так как в обработчике `product_view` сначала проверяется
 есть ли параметр `id` в адресной строке, а только затем (если `id` нет в адресной строке среди переданных 
 пользователем параметров) вы проверяете параметры category, ordering и reverse. Обратите внимание, чтобы 
 `HttpResponseNotFound("Данного продукта нет в базе данных")` написанный вами ранее корректно отрабатывался.
 
 ```python
-from logic.services import filtering_category
+from logic.services import filtering_category  # Импортируем filtering_category
 
-def products_view(request):
+def product_view(request):
     if request.method == "GET":
         # Обработка id из параметров запроса (уже было реализовано ранее)
-        if id_product := request.GET.get("id"):
-            if data := DATABASE.get(id_product):
-                return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
-                                                             'indent': 4})
+        id_ = request.GET.get('id')
+        if id_:
+            if id_ in DATABASE:
+                return JsonResponse(DATABASE[id_], json_dumps_params={'ensure_ascii': False,
+                                                                      'indent': 4})
             return HttpResponseNotFound("Данного продукта нет в базе данных")
 
         # Обработка фильтрации из параметров запроса
         category_key = request.GET.get("category")  # Считали 'category' 
         if ordering_key := request.GET.get("ordering"): # Если в параметрах есть 'ordering'
-            if request.GET.get("reverse").lower() == 'true': # Если в параметрах есть 'ordering' и 'reverse'=True
+            reverse = request.GET.get("reverse")
+            if reverse and reverse.lower() == 'true':  # Если в параметрах есть 'ordering' и 'reverse'=True
                 data = ... #  TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=True  
             else:  # Если не обнаружили в адресно строке ...&reverse=true , значит reverse=False
                 data = ... #  TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=False
@@ -361,6 +367,12 @@ def products_view(request):
 
 
 * http://127.0.0.1:8000/product?category=Овощи
+
+
+* http://127.0.0.1:8000/product
+
+
+* http://127.0.0.1:8000/product/?id=10
 
 Можете самостоятельно придумать параметры для фильтрации, допустим:
 

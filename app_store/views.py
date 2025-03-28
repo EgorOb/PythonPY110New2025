@@ -1,22 +1,31 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from .models import DATABASE
+from logic.services import filtering_category  # Импортируем filtering_category
 
 
 def product_view(request):
     if request.method == "GET":
         id_ = request.GET.get('id')
-        # TODO Если id_ было передано (существует)
-            # TODO Если этот id_ есть в базе (DATABASE), то вернуть JsonResponse товара (словаря с характеристиками товара)
-            # TODO Иначе вернуть HttpResponseNotFound("Данного продукта нет в базе данных")
         if id_:
             if id_ in DATABASE:
                 return JsonResponse(DATABASE[id_], json_dumps_params={'ensure_ascii': False,
                                                                       'indent': 4})
             return HttpResponseNotFound("Данного продукта нет в базе данных")
 
-        return JsonResponse(DATABASE, json_dumps_params={'ensure_ascii': False,
-                                                         'indent': 4})
+        # Обработка фильтрации из параметров запроса
+        category_key = request.GET.get("category")  # Считали 'category'
+        if ordering_key := request.GET.get("ordering"):  # Если в параметрах есть 'ordering'
+            reverse = request.GET.get("reverse")
+            if reverse and reverse.lower() == 'true':  # Если в параметрах есть 'ordering' и 'reverse'=True
+                data = filtering_category(DATABASE, category_key, ordering_key, True)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=True
+            else:  # Если не обнаружили в адресно строке ...&reverse=true , значит reverse=False
+                data = filtering_category(DATABASE, category_key, ordering_key, False)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=False
+        else:
+            data = filtering_category(DATABASE, category_key)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category
+        # В этот раз добавляем параметр safe=False, для корректного отображения списка в JSON
+        return JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False,
+                                                                 'indent': 4})
 
 
 def product_page_view(request, page):
@@ -35,8 +44,12 @@ def product_page_view(request, page):
             return HttpResponse(status=404)
 
         elif isinstance(page, int):
-            return HttpResponse(status=404)
+            data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
+            if data:  # Если по данному page было найдено значение
+                with open(f'app_store/product/{data["html"]}.html', encoding="utf-8") as f: # Определяем название файла для открытия
+                    return HttpResponse(f.read())
 
+        return HttpResponse(status=404)
 
 
 def shop_view(request):
