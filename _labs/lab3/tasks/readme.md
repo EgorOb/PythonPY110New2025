@@ -575,22 +575,22 @@ def cart_del_view_json(request, id_product):
 ```python
 from .views import cart_view_json, cart_add_view_json, cart_del_view_json    
 
-    path('cart/', cart_view_json),
+    path('cart/json/', cart_view_json),
     path('cart/add/<id_product>', cart_add_view_json),
     path('cart/del/<id_product>', cart_del_view_json),
 ```
 
 Протестируйте правильность выполнения запросов, вызвав последовательно следующие маршруты:
 
-* http://127.0.0.1:8000/cart/       Отображение корзины
+* http://127.0.0.1:8000/cart/json/  Отображение корзины в виде JSON
 * http://127.0.0.1:8000/cart/add/0  "Неудачное добавление в корзину"
 * http://127.0.0.1:8000/cart/add/1  "Продукт успешно добавлен в корзину"
 * http://127.0.0.1:8000/cart/add/1  "Продукт успешно добавлен в корзину"
 * http://127.0.0.1:8000/cart/add/2  "Продукт успешно добавлен в корзину"
-* http://127.0.0.1:8000/cart/        Отображение корзины
+* http://127.0.0.1:8000/cart/json/   Отображение корзины в виде JSON
 * http://127.0.0.1:8000/cart/del/0  "Неудачное удаление из корзины"
 * http://127.0.0.1:8000/cart/del/1  "Продукт успешно удалён из корзины"
-* http://127.0.0.1:8000/cart/        Отображение корзины
+* http://127.0.0.1:8000/cart/json/   Отображение корзины в виде JSON
 
 # Практика окончена
 
