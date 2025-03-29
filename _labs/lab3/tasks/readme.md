@@ -575,7 +575,7 @@ def cart_del_view_json(request, id_product):
 ```python
 from .views import cart_view_json, cart_add_view_json, cart_del_view_json    
 
-    path('cart/json', cart_view_json),
+    path('cart/json/', cart_view_json),
     path('cart/add/<id_product>', cart_add_view_json),
     path('cart/del/<id_product>', cart_del_view_json),
 ```
