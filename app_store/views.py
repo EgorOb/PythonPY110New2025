@@ -2,6 +2,38 @@ from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from .models import DATABASE
 from logic.services import filtering_category  # Импортируем filtering_category
+from logic.control_cart import view_in_cart, add_to_cart, remove_from_cart
+
+
+def cart_view_json(request):
+    if request.method == "GET":
+        data = view_in_cart()  # TODO Вызвать ответственную за это действие функцию view_in_cart(), передавать username не нужно
+        return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
+                                                     'indent': 4})
+
+
+def cart_add_view_json(request, id_product):
+    if request.method == "GET":
+        result = add_to_cart(id_product)  # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product), передавать username не нужно
+        if result:
+            return JsonResponse({"answer": "Продукт успешно добавлен в корзину"},
+                                json_dumps_params={'ensure_ascii': False})
+
+        return JsonResponse({"answer": "Неудачное добавление в корзину"},
+                            status=404,
+                            json_dumps_params={'ensure_ascii': False})
+
+
+def cart_del_view_json(request, id_product):
+    if request.method == "GET":
+        result = remove_from_cart(id_product)  # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product), передавать username не нужно
+        if result:
+            return JsonResponse({"answer": "Продукт успешно удалён из корзины"},
+                                json_dumps_params={'ensure_ascii': False})
+
+        return JsonResponse({"answer": "Неудачное удаление из корзины"},
+                            status=404,
+                            json_dumps_params={'ensure_ascii': False})
 
 
 def product_view(request):

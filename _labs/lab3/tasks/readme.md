@@ -376,7 +376,7 @@ def product_view(request):
 
 Можете самостоятельно придумать параметры для фильтрации, допустим:
 
-* Можете вывести все продукты в порядке убывания рейтинга продукта
+* Попробуйте написать запрос для вывода всех продуктов в порядке убывания рейтинга продукта
 
 ### Раздел 5. Работа с корзиной товаров
 
@@ -384,142 +384,171 @@ def product_view(request):
 
 Настало время добавить товар в корзину!
 
-Однако мы с вами снова пойдём реализации со стороны серверной части, а отображение в HTML оставим на следующую практику.
+Однако мы с вами снова пойдём по реализации со стороны серверной части, а отображение в HTML оставим на следующую практику.
 
 В отличии, от корзины - база данных наших товаров не меняется со временем. В корзину как добавляют товары, 
 так и удаляют из нёё. 
 
-Желательно чтобы от перезапуска сервера наша корзина не приходила в начальное состояние(пустая),
+Желательно чтобы от перезапуска сервера наша корзина не приходила в начальное состояние (пустая),
 а сохраняла то, что мы туда положили ранее.
 
 Поэтому в этот раз воспользуемся файлом в виде базы данных в которой будем хранить нашу информацию. Хранить 
 информацию будем в файле `cart.json`.
 
-В файле `services.py` напишем функции `view_in_cart`, `add_to_cart`, `remove_from_cart`  которые реализуют действия по
+В файле `control_cart.py` корневой папки `logic` написаны функции `view_in_cart`, `add_to_cart`, `remove_from_cart`  которые реализуют действия по
 просмотру, добавлению и удалению товаров из корзины. 
 
-Функция `view_in_cart` уже реализована, необходимо дописать 
-`add_to_cart`, `remove_from_cart`
+В файле `control_cart.py` функция `view_in_cart` уже реализована, необходимо дописать `add_to_cart`, `remove_from_cart`. 
+Ниже приведен код для ознакомления, он уже есть в `control_cart.py`
 
 ```python
 import json
 import os
-from store.models import DATABASE
+from app_store.models import DATABASE
 
-# def filtering_category(...)  Ваша реализация filtering_category 
+PATH_CART = 'cart.json'  # Путь до файла корзины
 
-def view_in_cart() -> dict:  # Уже реализовано, не нужно здесь ничего писать
+
+def view_in_cart(username: str = '') -> dict:  # Уже реализовано, не нужно здесь ничего писать
     """
-    Просматривает содержимое cart.json
+    Просматривает содержимое корзины cart.json, если пользователя с именем username нет в корзине, то создает его там
 
+    :param username: Имя пользователя
     :return: Содержимое 'cart.json'
     """
-    if os.path.exists('cart.json'):  # Если файл существует
-        with open('cart.json', encoding='utf-8') as f:
-            return json.load(f)
+    empty_user_cart = {'products': {}}  # Пустая корзина для пользователя
 
-    cart = {'products': {}}  # Создаём пустую корзину
-    with open('cart.json', mode='x', encoding='utf-8') as f:   # Создаём файл и записываем туда пустую корзину
+    if os.path.exists(PATH_CART):  # Если файл с корзиной существует
+        with open(PATH_CART, encoding='utf-8') as f:  # Открываем файл
+            cart = json.load(f)  # Считываем корзину
+            if username not in cart:  # Если пользователя нет в корзине, то создаем запись с пустой корзиной для него
+                cart[username] = empty_user_cart
+    else:  # Если файла с корзиной нет
+        cart = {username: empty_user_cart}
+
+    # Запись словаря cart в cart.json
+    with open(PATH_CART, mode='w', encoding='utf-8') as f:  # Создаём файл и записываем корзину
         json.dump(cart, f)
 
-    return cart
+    return cart  # Возвращаем содержимое корзины
 
 
-def add_to_cart(id_product: str) -> bool:
+def add_to_cart(id_product: str, username: str = '') -> bool:
     """
     Добавляет продукт в корзину. Если в корзине нет данного продукта, то добавляет его с количеством равное 1.
     Если в корзине есть такой продукт, то добавляет количеству данного продукта + 1.
 
     :param id_product: Идентификационный номер продукта в виде строки.
+    :param username: Имя пользователя
+
     :return: Возвращает True в случае успешного добавления, а False в случае неуспешного добавления(товара по id_product
     не существует).
     """
-    cart = ...  # TODO Помните, что у вас есть уже реализация просмотра корзины,
+    cart = ...  # TODO Помните, что у вас есть уже реализация просмотра корзины view_in_cart(username),
     # поэтому, чтобы загрузить данные из корзины, не нужно заново писать код.
-    
-    # ! Обратите внимание, что в переменной cart находится словарь с ключом products.
-    # ! Именно в cart["products"] лежит словарь гдк по id продуктов можно получить число продуктов в корзине.
+
+    # TODO Проверьте существует ли добавляемый товар с id_product в базе данных DATABASE, если нет, то возвращаем False,
+    #  так как добавление в корзину прошло неуспешно.
+
+    user_cart = ...  # TODO в переменную user_cart запишите данные об товарах пользователя.
+    #  Т.е. в user_cart будет словарь из ключа "products" для соответствующего пользователя по username.
+
+    # ! Обратите внимание, что в переменной cart под ключем значения username находится словарь с ключом "products".
+    # ! Именно в cart[username]["products"] лежит словарь где по id продуктов можно получить число продуктов в корзине.
     # ! Т.е. чтобы обратиться к продукту с id_product = "1" в переменной cart нужно вызвать
-    # ! cart["products"][id_product]
-    # ! Далее уже сами решайте как и в какой последовательности дальше действовать. 
-    
-    # TODO Проверьте, а существует ли такой товар в корзине, если нет, то перед тем как его добавить - проверьте есть ли такой id_product товара в вашей базе данных DATABASE, чтобы уберечь себя от добавления несуществующего товара.
+    # ! cart[username]["products"][id_product]
+    # ! Далее уже сами решайте, как и в какой последовательности дальше действовать.
 
-    # TODO Если товар существует, то увеличиваем его количество на 1
+    # TODO Проверьте, а существует ли товар с id_product в корзине пользователя user_cart, если товар существует,
+    #  то увеличиваем его количество в user_cart на 1, иначе товар добавляется в первый раз и его количество равно 1.
 
-    # TODO Не забываем записать обновленные данные cart в 'cart.json'. Так как именно из этого файла мы считываем данные и если мы не запишем изменения, то считать измененные данные не получится.
+    # TODO Не забываем записать обновленные данные cart в 'cart.json'. Так как именно из этого файла мы считываем данные
+    #  и если мы не запишем изменения, то считать измененные данные затем не получится. Так user_cart является частью
+    #  словаря cart, то любые изменения в user_cart аналогично отражаются в cart, поэтому достаточно записать
+    #  в 'cart.json' словарь из cart
 
     return True
 
 
-def remove_from_cart(id_product: str) -> bool:
+def remove_from_cart(id_product: str, username: str = '') -> bool:
     """
     Добавляет позицию продукта из корзины. Если в корзине есть такой продукт, то удаляется ключ в словаре
     с этим продуктом.
 
     :param id_product: Идентификационный номер продукта в виде строки.
+    :param username: Имя пользователя
+
     :return: Возвращает True в случае успешного удаления, а False в случае неуспешного удаления(товара по id_product
     не существует).
     """
-    cart = ...  # TODO Помните, что у вас есть уже реализация просмотра корзины,
+    cart = ...  # TODO Помните, что у вас есть уже реализация просмотра корзины view_in_cart(username),
     # поэтому, чтобы загрузить данные из корзины, не нужно заново писать код.
-    
-    # С переменной cart функции remove_from_cart ситуация аналогичная, что с cart функции add_to_cart
-    
-    # TODO Проверьте, а существует ли такой товар в корзине, если нет, то возвращаем False.
 
-    # TODO Если существует товар, то удаляем ключ 'id_product' у cart['products'].
+    # С переменной user_cart функции remove_from_cart ситуация аналогичная, что с cart функции add_to_cart
+    user_cart = ...  # TODO в переменную user_cart запишите данные об товарах пользователя.
+    #  Т.е. в user_cart будет словарь из ключа "products" для соответствующего пользователя по username.
 
-    # TODO Не забываем записать обновленные данные cart в 'cart.json'
+    # TODO Проверьте, существует ли товар с id_product в корзине пользователя user_cart, если нет, то возвращаем False.
+
+    # TODO Если существует товар, то удаляем ключ 'id_product' у user_cart,
+    #  вспомните как удалять ключи у словаря.
+
+    # TODO Не забываем записать обновленные данные cart в 'cart.json', аналогично как делали в add_to_cart
 
     return True
 
 
 if __name__ == "__main__":
     # Проверка работоспособности функций view_in_cart, add_to_cart, remove_from_cart
-    # Для совпадения выходных значений перед запуском скрипта удаляйте появляющийся файл 'cart.json' в папке
-    print(view_in_cart())  # {'products': {}}
-    print(add_to_cart('1'))  # True
-    print(add_to_cart('0'))  # False
-    print(add_to_cart('1'))  # True
-    print(add_to_cart('2'))  # True
-    print(view_in_cart())  # {'products': {'1': 2, '2': 1}}
-    print(remove_from_cart('0'))  # False
-    print(remove_from_cart('1'))  # True
-    print(view_in_cart())  # {'products': {'2': 1}}
+    if os.path.exists('cart.json'):  # Если файл существует
+        os.remove('cart.json')  # Удаляем корзину
 
-    # Предыдущий код, что был для проверки filtering_category закомментируйте
+    print('Проверяем корзину', "Ответ:     {'': {'products': {}}}", f'Результат: {view_in_cart()}\n', sep='\n')
+    print('Добавляем товар с id = 1', 'Ответ:     True', f'Результат: {add_to_cart("1")}\n', sep='\n')
+    print('Добавляем товар с id = 0', 'Ответ:     False', f'Результат: {add_to_cart("0")}\n', sep='\n')
+    print('Добавляем товар с id = 1', 'Ответ:     True', f'Результат: {add_to_cart("1")}\n', sep='\n')
+    print('Добавляем товар с id = 2', 'Ответ:     True', f'Результат: {add_to_cart("2")}\n', sep='\n')
+    print('Проверяем корзину', "Ответ:     {'': {'products': {'1': 2, '2': 1}}}", f'Результат: {view_in_cart()}\n', sep='\n')
+    print('Удаляем товар с id = 0', "Ответ:     False", f'Результат: {remove_from_cart("0")}\n', sep='\n')
+    print('Удаляем товар с id = 1', "Ответ:     True", f'Результат: {remove_from_cart("1")}\n', sep='\n')
+    print('Проверяем корзину', "Ответ:     {'': {'products': {'2': 1}}}", f'Результат: {view_in_cart()}\n', sep='\n')
+
+    if os.path.exists('cart.json'):  # Если файл существует
+        os.remove('cart.json')  # Удаляем корзину
+
 ```
 
-Финалом практики будет составление представления, которое будет обрабатывать запросы и работать с `cart.json`
+После реализации функции `add_to_cart` и `remove_from_cart` далее составим представления, 
+которые будут обрабатывать запросы и работать с `cart.json`
 
 Какие представления нам нужны? Те, что будут обрабатывать 3 функции, поэтому создадим 3 представления во `views.py` 
 приложения `app_store`. 
 
-* `cart_view` - возвращает JSON с корзиной
+* `cart_view_json` - возвращает JSON с корзиной
 
 
-* `cart_add_view` - добавляет в корзину товар по его `id_product`
+* `cart_add_view_json` - добавляет в корзину товар по его `id_product`
 
 
-* `cart_del_view` - удаляет товар из корзины по его `id_product`
+* `cart_del_view_json` - удаляет товар из корзины по его `id_product`
 
 Используйте и заполните предложенный шаблон
 
 ```python
-from logic.services import view_in_cart, add_to_cart, remove_from_cart
+# Импорты что бы ранее
+from logic.control_cart import view_in_cart, add_to_cart, remove_from_cart
 
 
-def cart_view(request):
+def cart_view_json(request):
     if request.method == "GET":
-        data = ... # TODO Вызвать ответственную за это действие функцию
+        data = ... # TODO Вызвать ответственную за это действие функцию view_in_cart(), передавать username не нужно
         return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
                                                      'indent': 4})
 
 
-def cart_add_view(request, id_product):
+def cart_add_view_json(request, id_product):
     if request.method == "GET":
-        result = ... # TODO Вызвать ответственную за это действие функцию и передать необходимые параметры
+        result = ... # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product), передавать username не нужно
         if result:
             return JsonResponse({"answer": "Продукт успешно добавлен в корзину"},
                                 json_dumps_params={'ensure_ascii': False})
@@ -529,9 +558,9 @@ def cart_add_view(request, id_product):
                             json_dumps_params={'ensure_ascii': False})
 
 
-def cart_del_view(request, id_product):
+def cart_del_view_json(request, id_product):
     if request.method == "GET":
-        result = ... # TODO Вызвать ответственную за это действие функцию и передать необходимые параметры
+        result = ... # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product), передавать username не нужно
         if result:
             return JsonResponse({"answer": "Продукт успешно удалён из корзины"},
                                 json_dumps_params={'ensure_ascii': False})
@@ -541,15 +570,27 @@ def cart_del_view(request, id_product):
                             json_dumps_params={'ensure_ascii': False})
 ```
 
-Осталось только прописать маршруты в `urls.py` приложения `app_store`. Строковый тип `id_product` передаём за счет `str`
+Осталось только прописать маршруты в `urls.py` приложения `app_store`.
 
 ```python
-    path('cart/', cart_view),
-    path('cart/add/<str:id_product>', cart_add_view),
-    path('cart/del/<str:id_product>', cart_del_view),
+from .views import cart_view_json, cart_add_view_json, cart_del_view_json    
+
+    path('cart/', cart_view_json),
+    path('cart/add/<id_product>', cart_add_view_json),
+    path('cart/del/<id_product>', cart_del_view_json),
 ```
 
-Протестируйте правильность выполнения запросов.
+Протестируйте правильность выполнения запросов, вызвав последовательно следующие маршруты:
+
+* http://127.0.0.1:8000/cart/       Отображение корзины
+* http://127.0.0.1:8000/cart/add/0  "Неудачное добавление в корзину"
+* http://127.0.0.1:8000/cart/add/1  "Продукт успешно добавлен в корзину"
+* http://127.0.0.1:8000/cart/add/1  "Продукт успешно добавлен в корзину"
+* http://127.0.0.1:8000/cart/add/2  "Продукт успешно добавлен в корзину"
+* http://127.0.0.1:8000/cart/        Отображение корзины
+* http://127.0.0.1:8000/cart/del/0  "Неудачное удаление из корзины"
+* http://127.0.0.1:8000/cart/del/1  "Продукт успешно удалён из корзины"
+* http://127.0.0.1:8000/cart/        Отображение корзины
 
 # Практика окончена
 
