@@ -5,6 +5,11 @@ from logic.services import filtering_category  # Импортируем filterin
 from logic.control_cart import view_in_cart, add_to_cart, remove_from_cart
 
 
+def cart_view(request):
+    if request.method == "GET":
+        return render(request, "app_store/cart.html")
+
+
 def cart_view_json(request):
     if request.method == "GET":
         data = view_in_cart()  # TODO Вызвать ответственную за это действие функцию view_in_cart(), передавать username не нужно
@@ -14,7 +19,8 @@ def cart_view_json(request):
 
 def cart_add_view_json(request, id_product):
     if request.method == "GET":
-        result = add_to_cart(id_product)  # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product), передавать username не нужно
+        result = add_to_cart(
+            id_product)  # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product), передавать username не нужно
         if result:
             return JsonResponse({"answer": "Продукт успешно добавлен в корзину"},
                                 json_dumps_params={'ensure_ascii': False})
@@ -26,7 +32,8 @@ def cart_add_view_json(request, id_product):
 
 def cart_del_view_json(request, id_product):
     if request.method == "GET":
-        result = remove_from_cart(id_product)  # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product), передавать username не нужно
+        result = remove_from_cart(
+            id_product)  # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product), передавать username не нужно
         if result:
             return JsonResponse({"answer": "Продукт успешно удалён из корзины"},
                                 json_dumps_params={'ensure_ascii': False})
@@ -50,11 +57,14 @@ def product_view(request):
         if ordering_key := request.GET.get("ordering"):  # Если в параметрах есть 'ordering'
             reverse = request.GET.get("reverse")
             if reverse and reverse.lower() == 'true':  # Если в параметрах есть 'ordering' и 'reverse'=True
-                data = filtering_category(DATABASE, category_key, ordering_key, True)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=True
+                data = filtering_category(DATABASE, category_key, ordering_key,
+                                          True)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=True
             else:  # Если не обнаружили в адресно строке ...&reverse=true , значит reverse=False
-                data = filtering_category(DATABASE, category_key, ordering_key, False)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=False
+                data = filtering_category(DATABASE, category_key, ordering_key,
+                                          False)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category, ordering, reverse=False
         else:
-            data = filtering_category(DATABASE, category_key)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category
+            data = filtering_category(DATABASE,
+                                      category_key)  # TODO Использовать filtering_category и провести фильтрацию с параметрами category
         # В этот раз добавляем параметр safe=False, для корректного отображения списка в JSON
         return JsonResponse(data, safe=False, json_dumps_params={'ensure_ascii': False,
                                                                  'indent': 4})
@@ -78,7 +88,8 @@ def product_page_view(request, page):
         elif isinstance(page, int):
             data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
             if data:  # Если по данному page было найдено значение
-                with open(f'app_store/product/{data["html"]}.html', encoding="utf-8") as f: # Определяем название файла для открытия
+                with open(f'app_store/product/{data["html"]}.html',
+                          encoding="utf-8") as f:  # Определяем название файла для открытия
                     return HttpResponse(f.read())
 
         return HttpResponse(status=404)
@@ -86,6 +97,6 @@ def product_page_view(request, page):
 
 def shop_view(request):
     if request.method == "GET":
-        with open('app_store/shop.html', encoding="utf-8") as f:
-            data = f.read()  # Читаем HTML файл
-        return HttpResponse(data)  # Отправляем HTML файл как ответ
+        return render(request,
+                      'app_store/shop.html',
+                      context={"products": DATABASE.values()})
