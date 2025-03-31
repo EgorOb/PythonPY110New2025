@@ -36,7 +36,7 @@ def cart_del_view_json(request, id_product):
                             json_dumps_params={'ensure_ascii': False})
 
 
-def product_view(request):
+def product_view_json(request):
     if request.method == "GET":
         id_ = request.GET.get('id')
         if id_:
