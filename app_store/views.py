@@ -3,7 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from .models import DATABASE
 
 
-def product_view(request):
+def product_view_json(request):
     if request.method == "GET":
         return JsonResponse(DATABASE, json_dumps_params={'ensure_ascii': False,
                                                          'indent': 4})
