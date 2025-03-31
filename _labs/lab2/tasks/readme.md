@@ -529,7 +529,7 @@ DATABASE = {'1': {'name': 'Болгарский перец',
             }
 ```
 
-4. Во `views.py` приложения `app_store` создадим представление `product_view` возвращающее все товары как объект JSON из базы данных. 
+4. Во `views.py` приложения `app_store` создадим представление `product_view_json` возвращающее все товары как объект JSON из базы данных. 
 
 
 ```python
@@ -537,7 +537,7 @@ from django.http import JsonResponse
 from .models import DATABASE
 
 
-def product_view(request):
+def product_view_json(request):
     if request.method == "GET":
         return  # TODO Вернуть JsonResponse с объектом DATABASE и параметрами отступов и кодировок,
         # как в приложении app_weather

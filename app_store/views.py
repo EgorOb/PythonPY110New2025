@@ -7,7 +7,22 @@ from logic.control_cart import view_in_cart, add_to_cart, remove_from_cart
 
 def cart_view(request):
     if request.method == "GET":
-        return render(request, "app_store/cart.html")
+        username = ''
+        data = view_in_cart(username)[username]  # Получаем корзину пользователя username
+
+        products = []  # Список продуктов
+        for product_id, quantity in data['products'].items():
+            product = DATABASE[product_id]  # Получаем информацию о продукте
+            # TODO в словарь product под ключом "quantity" запишите текущее значение количества товара в корзине
+            product["quantity"] = quantity
+            # TODO в словарь product под ключом "price_total" посчитайте и запишите общую стоимость товара как произведение
+            #  его количества в корзине на цену с учетом скидки ('price_after'). Значение цены "price_total" приведите к формату
+            #  2 символов после запятой
+            product["price_total"] = f"{quantity * product['price_after']:.2f}"
+            # TODO добавьте словарь product в конец списка products
+            products.append(product)
+
+        return render(request, "app_store/cart.html", context={"products": products})
 
 
 def cart_view_json(request):
@@ -43,7 +58,7 @@ def cart_del_view_json(request, id_product):
                             json_dumps_params={'ensure_ascii': False})
 
 
-def product_view(request):
+def product_view_json(request):
     if request.method == "GET":
         id_ = request.GET.get('id')
         if id_:

@@ -42,7 +42,7 @@
 					    </div>
 					    <div class="col-md pr-4 d-flex topper align-items-center">
 					    	<div class="icon mr-2 d-flex justify-content-center align-items-center"><span class="icon-paper-plane"></span></div>
-						    <span class="text">myapp_store@email.ru</span>
+						    <span class="text">mystore@email.ru</span>
 					    </div>
 					    <div class="col-md-5 pr-4 d-flex topper align-items-center text-lg-right">
 						    <span class="text">Доставка в течении 3-5 рабочих дней. Бесплатный возврат</span>
@@ -324,36 +324,38 @@
   	<script src="{% static 'app_store/js/google-map.js' %}"></script>
   	<script src="{% static 'app_store/js/main.js' %}"></script>
 
+	<!-- Функция обновления итоговой суммы у корзины с учетом доставки и купонов-->
 	<script>
-		// Получаем элементы с значениями
-		let subtotalElement = document.getElementById('subtotal-value');
-		let deliveryElement = document.getElementById('delivery-value');
-		let discountElement = document.getElementById('discount-value');
-		let totalElement = document.getElementById('total-value');
+	// Получаем элементы с значениями
+	let subtotalElement = document.getElementById('subtotal-value');
+	let deliveryElement = document.getElementById('delivery-value');
+	let discountElement = document.getElementById('discount-value');
+	let totalElement = document.getElementById('total-value');
 
-		// Функция для обновления итога
-		function updateTotal() {
-			// Получаем значения промежуточного итога, доставки и скидок из элементов
-			let subtotal = parseFloat(subtotalElement.textContent);
-			let delivery = parseFloat(deliveryElement.textContent);
-			let discount = parseFloat(discountElement.textContent);
+	// Функция для обновления итога
+	function updateTotal() {
+		// Получаем значения промежуточного итога, доставки и скидок из элементов
+		let subtotal = parseFloat(subtotalElement.textContent);
+		let delivery = parseFloat(deliveryElement.textContent);
+		let discount = parseFloat(discountElement.textContent);
 
-			// Вычисляем итог
-			let total = subtotal + delivery - discount;
+		// Вычисляем итог
+		let total = subtotal + delivery - discount;
 
-			// Убеждаемся, что итог не становится отрицательным
-			if (total < 0) {
-				total = 0;
-			}
-
-			// Обновляем элемент с итогом
-			totalElement.textContent = total.toFixed(2);
+		// Убеждаемся, что итог не становится отрицательным
+		if (total < 0) {
+			total = 0;
 		}
 
-		// Вызываем функцию для первичного расчета итога
-		updateTotal();
-	</script>
+		// Обновляем элемент с итогом
+		totalElement.textContent = total.toFixed(2);
+	}
 
+	// Вызываем функцию для первичного расчета итога
+	updateTotal();
+</script>
+
+	<!-- Функция обновления суммы покупки товара при увеличении числа товара в заказе-->
 	<script>
 		// Получаем все элементы с классами "quantity" и "total"
 		let quantityInputs = document.querySelectorAll('.quantity input');
@@ -398,6 +400,7 @@
 		updateSubtotal();
 		</script>
 
+	<!-- Функция проверки валидности купона при отправке запроса на адрес /coupon/check/-->
 	<script>
 		// Проверка действия купона
 
@@ -412,7 +415,7 @@
 			console.log(couponCode);
 
 			// Делаем кнопку неактивной, чтобы предотвратить повторные запросы
-    		checkCouponButton.disabled = true;
+			checkCouponButton.disabled = true;
 
 			// Отправляем асинхронный GET-запрос на сервер для проверки купона
 			fetch('/coupon/check/' + couponCode, {
@@ -450,7 +453,8 @@
 		checkCouponButton.addEventListener('click', checkCoupon);
 	</script>
 
-  	<script>
+	<!-- Функция расчета стоимости доставки при отправке запроса на адрес /delivery/estimate с параметрами country, city, code-->
+	<script>
 		// Расчёт стоимости доставки
 
 		let deliveryCountry = document.getElementById('delivery-country');
@@ -468,7 +472,7 @@
 			console.log(country, city, code);
 
 			// Делаем кнопку неактивной, чтобы предотвратить повторные запросы
-    		estimateButton.disabled = true;
+			estimateButton.disabled = true;
 
 			// Отправляем асинхронный GET-запрос на сервер для расчёта стоимости доставки
 			fetch('/delivery/estimate?country=' + country + '&city=' + city + '&code=' + code, {
