@@ -724,14 +724,48 @@ http://127.0.0.1:8000/cart/del/10
 И если всё выполнено верно, то по http://127.0.0.1:8000/cart/ будет всё отображаться верно и все javascript будут 
 работать верно.
 
+###  Раздел 6. Применение фильтрации на главной странице
 
-# Практика окончена
+Это будет заключительный раздел на данной практике
 
-Зафиксируем изменения сделав коммит и отправим эти коммиты на github
+#### 6.1 Отображение информации о продукте с использованием шаблона и вывод товаров той же категории
 
-### Дополнительные (необязательные) задания для желающих:
+Ранее мы копировали папку `product` с html файлами продуктов, теперь мы знаем как создавать шаблоны и подключать теги
+поэтому просто скопируйте `product.html` из `_labs/lab4/files` в `app_store/templates/app_store` там уже все подключено,
+нужно только использовать `render` в представлении `product_page_view` для отображения продукта, и передать параметры для подстановки в шаблон
 
-### Доп.1 Применение фильтрации на главной странице
+Замените код представления `product_page_view` во `views.py` приложения `app_store` на следующий код
+
+```python
+def product_page_view(request, page):
+    if request.method == "GET":
+        if isinstance(page, str):
+            for data in DATABASE.values():
+                if data['html'] == page:  # Если значение переданного параметра совпадает именем html файла
+                    data_other_products = DATABASE.values()  # TODO Переделать по заданию
+                    return render(request, 'app_store/product.html', context={'product': data,
+                                                                              'other_products': data_other_products})
+
+        elif isinstance(page, int):
+            data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
+            if data:  # Если по данному page было найдено значение
+                data_other_products = DATABASE.values()  # TODO Переделать по заданию
+                return render(request, 'app_store/product.html', context={'product': data,
+                                                                          'other_products': data_other_products})
+
+        return HttpResponse(status=404)
+```
+
+Перейдите на любой продукт из главной страницы, теперь render будут корректно всё отрабатывать, а не будет считывание 
+html файла с папки. Если дойти до конца страницы с продуктом, то появится блок товары той же категории, однако там будут все товары,
+так как в переменной `data_other_products` записываются все товары. Ваша задача в `data_other_products` записать 5 товаров
+той же категории, что и искомый товар, однако искомый товар должен быть исключен из этого вывода. Например, у нас есть "Болгарский перец",
+у него категория "Овощи", соответственно в `data_other_products` нужно записать 5 любых товаров категории "Овощи", но в
+`data_other_products` не должно быть товара "Болгарский перец".
+
+![img_43.png](pic_for_task/img_43.png)
+
+#### 6.2 Применение фильтрации на главной странице
 
 Ранее мы с вами делали функции способные фильтровать наши товары, вы даже сделали
 представление возвращающее JSON с фильтрующими параметрами.
@@ -750,39 +784,52 @@ def shop_view(request):
         category_key = request.GET.get("category")
         if ordering_key := request.GET.get("ordering"):
             if request.GET.get("reverse") in ('true', 'True'):
-                data = filtering_category(DATABASE, category_key, ordering_key,
-                                          True)
+                data = filtering_category(DATABASE, category_key, ordering_key, True)
             else:
                 data = filtering_category(DATABASE, category_key, ordering_key)
         else:
             data = filtering_category(DATABASE, category_key)
-        return render(request, 'store/shop.html',
+        return render(request, 'app_store/shop.html',
                       context={"products": data})
 ```
 
-Теперь через адресную строку можно фильтровать. 
+Теперь через адресную строку можно фильтровать, так как в `products` отправляем именно те продукты, что ходим
+после фильтрации.
+
+Перейдите по адресам и посмотрите на результат
+
+* http://127.0.0.1:8000/
+* http://127.0.0.1:8000/?category=Овощи
+* http://127.0.0.1:8000/?category=Фрукты
+* http://127.0.0.1:8000/?category=Соки
+* http://127.0.0.1:8000/?category=Семена
 
 
-### Доп2. Фильтрация продуктов по нажатию на ссылку
+#### 6.3 Применение фильтрации на главной странице при нажатии на кнопку
 
-Сделаем фильтрацию по нажатию ссылку категории 
+Сделаем фильтрацию по нажатию ссылку категории, так как писать в адресной строке очень неудобно 
 
 ![img_25.png](pic_for_task/img_25.png)
 
-Для этого в `urls.py` назовем обработчик
+Для этого в `urls.py` приложения `app_store` назовем обработчик
 
 ```python
 path('', shop_view, name="shop_view")
 ```
 ![img_26.png](pic_for_task/img_26.png)
 
-Затем в представлении `shop_view` в словарь передадим какую категорию выбрали для фильтрации
+Затем в представлении `shop_view` в словарь передадим какую категорию выбрали для фильтрации в словарь `context`
+
+```python
+context={"products": data,
+         "category": category_key})
+```
 
 ![img_27.png](pic_for_task/img_27.png)
 
 И наконец в `shop.html` найдём `<ul class="product-category">`
 
-И данные элементы списка 
+И приведенные элементы списка 
 
 ```html
 <li><a href="#" class="active">Все</a></li>
@@ -792,108 +839,55 @@ path('', shop_view, name="shop_view")
 <li><a href="#">Семена</a></li>
 ```
 
-Превратим в 
+Замените их на 
 
 ```html
 {% if category is None %}
-<li><a href="{% url 'store:shop_view' %}" class="active">Все</a></li>
+<li><a href="{% url 'app_store:shop_view' %}" class="active">Все</a></li>
 {% else %}
-<li><a href="{% url 'store:shop_view' %}">Все</a></li>
+<li><a href="{% url 'app_store:shop_view' %}">Все</a></li>
 {% endif %}
 
 {% if category == 'Овощи' %}
-<li><a href="{% url 'store:shop_view' %}?category={{category}}" class="active">Овощи</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category={{category}}" class="active">Овощи</a></li>
 {% else %}
-<li><a href="{% url 'store:shop_view' %}?category=Овощи">Овощи</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category=Овощи">Овощи</a></li>
 {% endif %}
 
 {% if category == 'Фрукты' %}
-<li><a href="{% url 'store:shop_view' %}?category={{category}}" class="active">Фрукты</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category={{category}}" class="active">Фрукты</a></li>
 {% else %}
-<li><a href="{% url 'store:shop_view' %}?category=Фрукты">Фрукты</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category=Фрукты">Фрукты</a></li>
 {% endif %}
 
 {% if category == 'Соки' %}
-<li><a href="{% url 'store:shop_view' %}?category={{category}}" class="active">Соки</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category={{category}}" class="active">Соки</a></li>
 {% else %}
-<li><a href="{% url 'store:shop_view' %}?category=Соки">Соки</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category=Соки">Соки</a></li>
 {% endif %}
 
 {% if category == 'Семена' %}
-<li><a href="{% url 'store:shop_view' %}?category={{category}}" class="active">Семена</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category={{category}}" class="active">Семена</a></li>
 {% else %}
-<li><a href="{% url 'store:shop_view' %}?category=Семена">Семена</a></li>
+<li><a href="{% url 'app_store:shop_view' %}?category=Семена">Семена</a></li>
 {% endif %}
 ```
 
-Здесь мы проверяем какая категория есть в параметрах переданных в шаблон, и затем
-данную категорию делаем активной (появляется зелёная обводка)
+![img_27_1.png](pic_for_task/img_27_1.png)
 
-Теперь при нажатии на ссылку категории происходит фильтрация
 
-### Доп.3 Создание и настройка файла для отображения продуктов
+В приведенном коде проверяется какая категория есть в параметрах переданных в шаблон, и затем
+эту категорию делаем активной (появляется зелёная обводка).
 
-Создайте файл `product.html` в `store/templates/store`. В `product.html` скопируйте содержимого любого из html файла
-папки `store/products`, допустим `bell_pepper.html`.
+Теперь при нажатии на кнопку категории на главной странице происходит фильтрация. 
 
-Далее всё по стандартной схеме. Расширьте `product.html` файлом `base.html`. В блоке `{% block content %}` правильно пропишите
-статические файлы, чтобы верно отрабатывался тег `{% static %}`. Так же обратим внимание, что в продуктах есть блок "Товары той же категории"
-который является тоже частью контента
+#### 6.3 Облегчение перехода по ссылкам на главной странице
 
-![img_39.png](pic_for_task/img_39.png)
 
-Так как не проверить правильное отображение страницы в текущих настройках, то изменим наше представление `products_page_view`
-под использование функции `render`
 
-```python
-def products_page_view(request, page):
-    if request.method == "GET":
-        if isinstance(page, str):
-            for data in DATABASE.values():
-                if data['html'] == page:
-                    return render(request, "store/product.html", context={"product": data})
 
-        elif isinstance(page, int):
-            # Обрабатываем условие того, что пытаемся получить страницу товара по его id
-            data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
-            if data:
-                return render(request, "store/product.html", context={"product": data})
 
-        return HttpResponse(status=404)
-```
 
-На ниже приведенных картинках обведены значения которые можно получить из передаваемых данных (те что мы передаём через `render`)
+# Практика окончена
 
-![img_40.png](pic_for_task/img_40.png)
-
-![img_41.png](pic_for_task/img_41.png)
-
-Данные взяты исходя из базы данных описанной в `models.py` приложения `app_store`
-
-| Описание              | Значение                   | На что заменить               |
-|-----------------------|----------------------------|-------------------------------|
-| Расположение картинки | store/images/product-1.jpg | `product.url`                 |
-| Название продукта     | Болгарский перец           | `{{product.name}}`            |
-| Рейтинг продукта      | 4.9                        | `{{product.rating}}`          |
-| Число отзывов         | 250                        | `{{product.review}}`          |
-| Число продаж          | 600                        | `{{product.sold_value}}`      |
-| Регулярная цена       | 300                        | `{{product.price_before}}`    |
-| Цена после скидки     | 210                        | `{{product.price_after}}`     |
-| Описание              | Сочный и яркий, он ...     | `{{product.description}}`     |
-| Наличие на складе     | 500                        | `{{product.weight_in_stock}}` |
-
-После замены при переходе на продукт из главной страницы будет показываться актуальный продукт.
-
-Единственное есть 2 момента которые вам необходимо поправить:
-
-1. Товары только с регулярной ценой теперь дублируют цены. Поправьте этот момент, вспомните как работали с условием
-`{% if product.discount %}`, когда проверяли есть ли скидка на данный товар, если её нет, то отображать только регулярную цену.
-
-![img_42.png](pic_for_task/img_42.png)
-
-2. Блок "Товары той же категории" должен отражать актуальное состояние для категории. Т.е. если рассматриваем болгарский перец, 
-то в блоке "Товары той же категории" будут перечислены товары категории "Овощи" той же самой, что и болгарский перец.
-Только в этих товарах не должно быть болгарского перца, так как мы на странице перца. Количество товаров для 
-отображения ограничено - не более 5 товаров.
-
-![img_43.png](pic_for_task/img_43.png)
+Зафиксируем изменения сделав коммит и отправим эти коммиты на github

@@ -8,7 +8,7 @@ app_name = 'app_store'
 
 urlpatterns = [
     path('product/', product_view_json),
-    path('', shop_view),
+    path('', shop_view, name='shop_view'),
     path('product/<slug:page>.html', product_page_view, name='product_page_view'),
     path('product/<int:page>', product_page_view),
     path('cart/json/', cart_view_json),

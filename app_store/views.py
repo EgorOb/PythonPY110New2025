@@ -90,28 +90,31 @@ def product_page_view(request, page):
         if isinstance(page, str):
             for data in DATABASE.values():
                 if data['html'] == page:  # Если значение переданного параметра совпадает именем html файла
-                    # TODO 1. Откройте файл open(f'app_store/product/{page}.html', encoding="utf-8") (Не забываем про контекстный менеджер with)
-                    # TODO 2. Прочитайте его содержимое
-                    # TODO 3. Верните HttpResponse c содержимым html файла
-                    with open(f'app_store/product/{page}.html', encoding="utf-8") as f:
-                        return HttpResponse(f.read())
-
-            # Если за всё время поиска не было совпадений, то значит по данному имени нет соответствующей
-            # страницы товара и можно вернуть ответ с ошибкой HttpResponse(status=404)
-            return HttpResponse(status=404)
+                    data_other_products = [product for product in DATABASE.values() if product['category'] == data['category'] and product['id'] != data['id']][:5]  # TODO Переделать по заданию
+                    return render(request, 'app_store/product.html', context={'product': data,
+                                                                              'other_products': data_other_products})
 
         elif isinstance(page, int):
             data = DATABASE.get(str(page))  # Получаем какой странице соответствует данный id
             if data:  # Если по данному page было найдено значение
-                with open(f'app_store/product/{data["html"]}.html',
-                          encoding="utf-8") as f:  # Определяем название файла для открытия
-                    return HttpResponse(f.read())
+                data_other_products = [product for product in DATABASE.values() if product['category'] == data['category'] and product['id'] != data['id']][:5]  # TODO Переделать по заданию
+                return render(request, 'app_store/product.html', context={'product': data,
+                                                                          'other_products': data_other_products})
 
         return HttpResponse(status=404)
 
 
 def shop_view(request):
     if request.method == "GET":
-        return render(request,
-                      'app_store/shop.html',
-                      context={"products": DATABASE.values()})
+        # Обработка фильтрации из параметров запроса
+        category_key = request.GET.get("category")
+        if ordering_key := request.GET.get("ordering"):
+            if request.GET.get("reverse") in ('true', 'True'):
+                data = filtering_category(DATABASE, category_key, ordering_key, True)
+            else:
+                data = filtering_category(DATABASE, category_key, ordering_key)
+        else:
+            data = filtering_category(DATABASE, category_key)
+        return render(request, 'app_store/shop.html',
+                      context={"products": data,
+                               "category": category_key})
