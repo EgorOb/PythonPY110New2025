@@ -2,7 +2,7 @@
 
 В зачётном задании будет необходимо реализовать функционал избранного по приведенному шаблону.
 
-Шаблон `wishlist.html` приведён в `files/lab6_exam`
+Шаблон `wishlist.html` приведён в `_labs/lab6_exam/files`
 
 На базе того, что мы сделали теперь самостоятельно предстоит разработать функционал избранного. 
 
@@ -14,15 +14,15 @@
 
 Помните, что приложение необходимо будет зарегистрировать в словаре `INSTALLED_APPS` файла `settings.py`.
 
-Создайте в папке приложения папку `templates`, а уже в ней папку `wishlist` как делали обычно ранее.
+Создайте в папке приложения папку `templates`, а уже в ней папку `app_wishlist` как делали обычно ранее.
 
 Создайте файл `urls.py` в папке приложения.
 
 #### Этап2. Подключите шаблон wishlist.html
 
-Перенесите шаблон `wishlist.html` из `files/lab6_exam` в `wishlist/templates/wishlist`.
+Перенесите шаблон `wishlist.html` из `_labs/lab6_exam/files` в `app_wishlist/templates/wishlist`.
 
-Во `views.py` приложения `wishlist` пропишите представление отображающее избранное
+Во `views.py` приложения `app_wishlist` пропишите представление отображающее избранное
 
 ```python
 def wishlist_view(request):
@@ -36,7 +36,7 @@ def wishlist_view(request):
 from django.urls import path
 #  TODO Импортируйте ваше представление
 
-app_name = 'wishlist'
+app_name = 'app_wishlist'
 
 urlpatterns = [
     path(..., ..., name=...),  # TODO Зарегистрируйте обработчик
@@ -103,7 +103,7 @@ urlpatterns = [
 теперь не подойдет, будет лучше использовать метод списка `remove` удаляющий объект по значению, а не индексу как в `pop`.
 
 После создания `view_in_wishlist`, `add_to_wishlist`, `remove_from_wishlist`, `add_user_to_wishlist` в `logic/services.py` допишите представление `wishlist_view`
-во `views.py` приложения `wishlist`. 
+во `views.py` приложения `app_wishlist`. 
 
 Необходимо, чтобы в шаблон `wishlist.html` передавались продукты, что находятся в избранном.
 Получить эти продукты вы можете из написанной вами функции `view_in_wishlist` из `logic/services.py`.
@@ -111,7 +111,7 @@ urlpatterns = [
 ```python
 def wishlist_view(request):
     if request.method == "GET":
-        current_user = get_user(request).username
+        username = get_user(request).username
         data = ... # TODO получить продукты из избранного для пользователя
         
         products = []
@@ -129,13 +129,14 @@ def login_view(request):
         return render(request, "login/login.html")
 
     if request.method == "POST":
-        data = request.POST
-        user = authenticate(username=data["username"], password=data["password"])
-        if user:
-            login(request, user)
-            add_user_to_cart(request, user.username)
+        data = request.POST  # Получаем данный из post запроса
+        user = authenticate(username=data["username"], password=data["password"])  # Понимаем, что за пользователь перед нами
+        if user:  # Если пользователь есть в базе
+            login(request, user)  # Авторизируем пользователя
+            view_in_cart(user.username)  # Получаем корзину пользователя, если её нет, то создаем её
             ...  # TODO добавить пользователя в базу избранное
-            return redirect("/")
+            return redirect("/")  # Перенаправляем пользователя на стартовую страницу
+        # Иначе заново показываем форму авторизации
         return render(request, "login/login.html", context={"error": "Неверные данные"})
 ```
 
@@ -168,118 +169,11 @@ def login_view(request):
 
 ![img_6.png](pic_for_task/img_6.png)
 
-Код для добавления
-```html
-<script>
-	// Переключение сердечка избранного
-	function toggleWishlistState(event) {
-		event.preventDefault();
-		let linkWish = event.target;
 
-		if (linkWish.getAttribute('data-action') !== 'toggle') {
-			linkWish = linkWish.querySelector('i');
-		}
-
-		const productId = linkWish.getAttribute('data-product-id');
-		const currentState = linkWish.getAttribute('data-state');
-
-		linkWish.disabled = true;
-
-		if (currentState === 'inactive') {
-			// Отправить запрос на добавление в избранное
-			fetch('/wishlist/api/add/' + productId, { method: 'GET' })
-				.then(function (response) {
-					if (response.ok) {
-						showPopupMessage(productId, 'Продукт успешно добавлен в избранное');
-						linkWish.classList.remove('ion-ios-heart-empty');
-						linkWish.classList.add('ion-ios-heart');
-						linkWish.setAttribute('data-state', 'active');
-					} else {
-                    // Если произошла ошибка, перенаправьте пользователя на страницу авторизации
-                    window.location.href = '/login';
-                	}
-				})
-				.catch(function (error) {
-					console.error(error);
-				})
-				.finally(function () {
-					linkWish.disabled = false;
-				});
-		} else {
-			// Отправить запрос на удаление из избранного
-			fetch('/wishlist/api/del/' + productId, { method: 'GET' })
-				.then(function (response) {
-					if (response.ok) {
-						showPopupMessage(productId, 'Продукт успешно удалён из избранного');
-						linkWish.classList.remove('ion-ios-heart');
-						linkWish.classList.add('ion-ios-heart-empty');
-						linkWish.setAttribute('data-state', 'inactive');
-					} else {
-                    // Если произошла ошибка, перенаправьте пользователя на страницу авторизации
-                    window.location.href = '/login';
-                	}
-				})
-				.catch(function (error) {
-					console.error(error);
-				})
-				.finally(function () {
-					linkWish.disabled = false;
-				});
-		}
-	}
-
-	const addButtonsHeart = document.querySelectorAll('.heart');
-	addButtonsHeart.forEach(function (button) {
-		button.addEventListener('click', toggleWishlistState);
-	});
-</script>
-
-<script>
-	function showHearts(favoriteProducts) {
-		// Проходим по всем ссылкам с классом "heart" и изменяем классы:
-		let addButtonsHeart1 = document.querySelectorAll('.heart');
-		addButtonsHeart1.forEach(function(button) {
-			let productId = button.querySelector('i').getAttribute('data-product-id');
-
-			// Если data-product-id товара есть в списке избранных, меняем классы
-			if (favoriteProducts.includes(productId)) {
-				let icon = button.querySelector('.ion-ios-heart-empty');
-				if (icon) {
-					icon.classList.remove('ion-ios-heart-empty');
-					icon.classList.add('ion-ios-heart');
-					icon.setAttribute('data-state', 'active');
-				}
-			}
-
-		});
-	}
-	// Отправляем запрос на получение всех товаров в избранном
-	fetch('/wishlist/api/', {
-			method: 'GET'
-		})
-		.then(function(response) {
-			// Проверяем статус ответа
-			if (!response.ok) {
-				throw new Error('Ошибка');
-			}
-			return response.json();
-		})
-		.then(function(data) {
-			// Обрабатываем данные, которые пришли с сервера
-			let favoriteProducts = data.products
-			showHearts(favoriteProducts);
-		})
-		.catch(function(error) {
-			// Обрабатываем ошибку
-			console.error(error);
-		});
-
-</script>
-```
 
 Теперь необходимо реализовать несколько обработчиков, которые помогут JS(JavaScript) коду заработать так как нужно.
 
-Необходимо реализовать несколько обработчиков в `views.py` приложения `wishlist` для примера посмотрите как были реализованы
+Необходимо реализовать несколько обработчиков в `views.py` приложения `app_wishlist` для примера посмотрите как были реализованы
 обработчики `cart_add_view`, `cart_del_view` из `views.py` приложения `store` они очень похожие(не забудьте использовать 
 `json_dumps_params={'ensure_ascii': False}` в `JsonResponse` для отображения кириллических символов):
 
@@ -329,7 +223,7 @@ def wishlist_json(request):
 | http://127.0.0.1:8000/wishlist/api/del/1 | Удаляет продукт из избранного с id_product = 1                 | `wishlist_del_json` |
 | http://127.0.0.1:8000/wishlist/api/      | Предоставляет список всех продуктов в избранном у пользователя | `wishlist_json`     |
 
-Соответственно в `urls.py` приложения `wishlist` пропишите маршруты для заданных обработчиков
+Соответственно в `urls.py` приложения `app_wishlist` пропишите маршруты для заданных обработчиков
 
 Проверьте корректность получаемой информации от этих обработчиков при переходе по ссылкам.
 
