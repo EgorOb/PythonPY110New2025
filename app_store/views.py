@@ -4,11 +4,12 @@ from .models import DATABASE
 from logic.services import filtering_category  # Импортируем filtering_category
 from logic.control_cart import view_in_cart, add_to_cart, remove_from_cart
 from django.shortcuts import redirect
+from django.contrib.auth import get_user
 
 
 def cart_buy_now_view(request, id_product):
     if request.method == "GET":
-        username = ''
+        username = get_user(request).username
         result = add_to_cart(id_product, username)
         if result:
             return redirect("app_store:cart_view")
@@ -18,7 +19,7 @@ def cart_buy_now_view(request, id_product):
 
 def cart_remove_view(request, id_product):
     if request.method == "GET":
-        username = ''
+        username = get_user(request).username
         result = remove_from_cart(id_product, username)  # TODO Вызвать функцию удаления из корзины
         if result:
             return redirect("app_store:cart_view")  # TODO Вернуть перенаправление на корзину
@@ -73,7 +74,7 @@ def delivery_estimate_view(request):
 
 def cart_view(request):
     if request.method == "GET":
-        username = ''
+        username = get_user(request).username
         data = view_in_cart(username)[username]  # Получаем корзину пользователя username
 
         products = []  # Список продуктов
@@ -93,15 +94,17 @@ def cart_view(request):
 
 def cart_view_json(request):
     if request.method == "GET":
-        data = view_in_cart()  # TODO Вызвать ответственную за это действие функцию view_in_cart(), передавать username не нужно
+        username = get_user(request).username
+        data = view_in_cart(username)  # TODO Вызвать ответственную за это действие функцию view_in_cart(username)
         return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
                                                      'indent': 4})
 
 
 def cart_add_view_json(request, id_product):
     if request.method == "GET":
+        username = get_user(request).username
         result = add_to_cart(
-            id_product)  # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product), передавать username не нужно
+            id_product, username)  # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product, username)
         if result:
             return JsonResponse({"answer": "Продукт успешно добавлен в корзину"},
                                 json_dumps_params={'ensure_ascii': False})
@@ -113,8 +116,9 @@ def cart_add_view_json(request, id_product):
 
 def cart_del_view_json(request, id_product):
     if request.method == "GET":
+        username = get_user(request).username
         result = remove_from_cart(
-            id_product)  # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product), передавать username не нужно
+            id_product, username)  # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product, username)
         if result:
             return JsonResponse({"answer": "Продукт успешно удалён из корзины"},
                                 json_dumps_params={'ensure_ascii': False})
