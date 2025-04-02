@@ -127,15 +127,13 @@
 {% endblock %}
 
 {% block custom_scripts %}
+<!-- Блок дополнительных пользовательских скриптов-->
 <!-- Функция обновления итоговой суммы у корзины с учетом доставки и купонов-->
-<script src="{% static 'app_store/js/updateSubtotal.js' %}"></script>
-
+<script src="{% static 'app_store/js/appUpdateSubtotal.js' %}"></script>
 <!-- Функция обновления суммы покупки товара при увеличении числа товара в заказе-->
-<script src="{% static 'app_store/js/updateTotal.js' %}"></script>
-
+<script src="{% static 'app_store/js/appUpdateTotal.js' %}"></script>
 <!-- Функция проверки валидности купона при отправке запроса на адрес /coupon/check/-->
-<script src="{% static 'app_store/js/checkCoupon.js' %}"></script>
-
+<script src="{% static 'app_store/js/appCheckCoupon.js' %}"></script>
 <!-- Функция расчета стоимости доставки при отправке запроса на адрес /delivery/estimate с параметрами country, city, code-->
-<script src="{% static 'app_store/js/estimateDelivery.js' %}"></script>
+<script src="{% static 'app_store/js/appEstimateDelivery.js' %}"></script>
 {% endblock %}

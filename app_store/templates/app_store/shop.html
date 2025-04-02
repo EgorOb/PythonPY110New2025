@@ -119,5 +119,9 @@
 {% endblock %}
 
 {% block custom_scripts %}
-<script src="{% static 'app_store/js/addToCard.js' %}"></script>  <!-- скрипты добавления в корзину -->
+<!-- Блок дополнительных пользовательских скриптов-->
+<!-- Функциональность добавления в корзину товара по нажатию на кнопку (должен быть реализован адрес /cart/add/) -->
+<script src="{% static 'app_store/js/appAddToCard.js' %}"></script>
+<!-- Функциональность добавления в избранное товара по нажатию на кнопку (должен быть реализован адрес /wishlist/add/) -->
+<script src="{% static 'app_store/js/appAddToWishlist.js' %}"></script>
 {% endblock %}
