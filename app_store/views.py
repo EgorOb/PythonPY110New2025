@@ -27,15 +27,17 @@ def cart_view(request):
 
 def cart_view_json(request):
     if request.method == "GET":
-        data = view_in_cart()  # TODO Вызвать ответственную за это действие функцию view_in_cart(), передавать username не нужно
+        username = ''
+        data = view_in_cart(username)  # TODO Вызвать ответственную за это действие функцию view_in_cart(username)
         return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
                                                      'indent': 4})
 
 
 def cart_add_view_json(request, id_product):
     if request.method == "GET":
+        username = ''
         result = add_to_cart(
-            id_product)  # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product), передавать username не нужно
+            id_product, username)  # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product, username)
         if result:
             return JsonResponse({"answer": "Продукт успешно добавлен в корзину"},
                                 json_dumps_params={'ensure_ascii': False})
@@ -47,8 +49,9 @@ def cart_add_view_json(request, id_product):
 
 def cart_del_view_json(request, id_product):
     if request.method == "GET":
+        username = ''
         result = remove_from_cart(
-            id_product)  # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product), передавать username не нужно
+            id_product, username)  # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product, username)
         if result:
             return JsonResponse({"answer": "Продукт успешно удалён из корзины"},
                                 json_dumps_params={'ensure_ascii': False})
