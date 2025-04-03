@@ -24,10 +24,10 @@
 # urls.py in app_store
 
 from django.urls import path
-from .views import product_view, shop_view
+from .views import product_view_json, shop_view
 
 urlpatterns = [
-    path('product/', product_view),
+    path('product/', product_view_json),
     path('', shop_view),
 ]
 ```
@@ -95,7 +95,7 @@ def weather_view(request):
 
 #### 2.2 Самостоятельно
 
-Доработайте представление `product_view` приложения `app_store` так, чтобы через параметры запроса `id` 
+Доработайте представление `product_view_json` приложения `app_store` так, чтобы через параметры запроса `id` 
 представление реализовывало следующий функционал:
 * Если `id` было передано в запросе и такой ключ существует в `DATABASE`, то представление возвращает характеристики товара
 * Если `id` было передано в запросе и такого ключа НЕ существует в `DATABASE`, то представление возвращает 
@@ -109,7 +109,7 @@ from django.http import HttpResponse, JsonResponse, HttpResponseNotFound
 from .models import DATABASE
 
 
-def product_view(request):
+def product_view_json(request):
     if request.method == "GET":
         id_ = request.GET.get('id')
         # TODO Если id_ было передано (существует)
@@ -140,7 +140,7 @@ def product_view(request):
 Будем возвращать HTML файлы (как в прошлой работе).
 
 Для этого во `views.py` приложения `app_store` создадим новое представление `product_page_view` (так как представление 
-`product_view` у нас возвращает объект JSON)
+`product_view_json` у нас возвращает объект JSON)
 
 #### 3.1 *Передача параметров с типом `slug`*
 
@@ -317,7 +317,7 @@ if __name__ == "__main__":
 
 ```
 
-Далее допишем представление `product_view` во `views.py` приложения `app_store`.
+Далее допишем представление `product_view_json` во `views.py` приложения `app_store`.
 
 Во `views.py` приложения `app_store` импортируйте `filtering_category` из `logic.services`
 
@@ -333,7 +333,7 @@ if __name__ == "__main__":
 ```python
 from logic.services import filtering_category  # Импортируем filtering_category
 
-def product_view(request):
+def product_view_json(request):
     if request.method == "GET":
         # Обработка id из параметров запроса (уже было реализовано ранее)
         id_ = request.GET.get('id')
@@ -541,14 +541,16 @@ from logic.control_cart import view_in_cart, add_to_cart, remove_from_cart
 
 def cart_view_json(request):
     if request.method == "GET":
-        data = ... # TODO Вызвать ответственную за это действие функцию view_in_cart(), передавать username не нужно
+        username = ''
+        data = ... # TODO Вызвать ответственную за это действие функцию view_in_cart(username)
         return JsonResponse(data, json_dumps_params={'ensure_ascii': False,
                                                      'indent': 4})
 
 
 def cart_add_view_json(request, id_product):
     if request.method == "GET":
-        result = ... # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product), передавать username не нужно
+        username = ''
+        result = ... # TODO Вызвать ответственную за это действие функцию add_to_cart(id_product, username)
         if result:
             return JsonResponse({"answer": "Продукт успешно добавлен в корзину"},
                                 json_dumps_params={'ensure_ascii': False})
@@ -560,7 +562,8 @@ def cart_add_view_json(request, id_product):
 
 def cart_del_view_json(request, id_product):
     if request.method == "GET":
-        result = ... # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product), передавать username не нужно
+        username = ''
+        result = ... # TODO Вызвать ответственную за это действие функцию remove_from_cart(id_product, username)
         if result:
             return JsonResponse({"answer": "Продукт успешно удалён из корзины"},
                                 json_dumps_params={'ensure_ascii': False})
