@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'app_store',
     'app_login',
     'app_wishlist',
+    'app_htmx',
 ]
 
 MIDDLEWARE = [

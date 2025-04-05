@@ -55,4 +55,5 @@ urlpatterns = [
     path('', include('app_store.urls')),
     path('login/', include('app_login.urls')),
     path('wishlist/', include('app_wishlist.urls')),  # TODO Зарегистрируйте маршруты приложения так чтобы обработчик избранного обрабатывался по пути wishlist/
+    path('htmx/', include('app_htmx.urls')),
 ]
