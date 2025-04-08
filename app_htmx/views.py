@@ -72,7 +72,8 @@ def swap_inner(request):
 
 
 def swap_outer(request):
-    return HttpResponse("<div class='response' id='outer' style='color: red; background: #7abaff;'>Полностью заменён outerHTML</div>")
+    return HttpResponse(
+        "<div class='response' id='outer' style='color: red; background: #7abaff;'>Полностью заменён outerHTML</div>")
 
 
 def swap_text(request):
@@ -102,3 +103,103 @@ def swap_delete(request):
 def swap_none(request):
     # Код выполнится
     return HttpResponse("<div style='color: gray;'>Этот ответ не будет вставлен</div>")
+
+
+# __________ представления для demo_hx_trigger
+
+
+def hx_trigger_mouse_view(request):
+    return render(request, 'app_htmx/demo_hx_trigger_mouse.html')
+
+
+def mouse_event(request, event_name):
+    messages = {
+        "click": "✔ Клик сработал!",
+        "dblclick": "✔ Двойной клик сработал!",
+        "mousedown": "✔ Нажатие кнопки мыши (mousedown)",
+        "mouseup": "✔ Отпускание кнопки мыши (mouseup)",
+        "mouseover": "✔ Наведение мыши (mouseover)",
+        "mouseout": "✔ Уход мыши (mouseout)",
+        "mousemove": "✔ Движение мыши (mousemove)",
+        "contextmenu": "✔ Правая кнопка мыши (contextmenu)",
+    }
+
+    message = messages.get(event_name, f"Событие: {event_name}")
+    return HttpResponse(message)
+
+
+def hx_trigger_input_view(request):
+    return render(request, 'app_htmx/demo_hx_trigger_input.html')
+
+
+def search(request):
+    query = request.GET.get("query", "")
+    return HttpResponse(f"🔎 Поиск по: {query}")
+
+
+def filter_category(request):
+    category = request.GET.get("category", "")
+    return HttpResponse(f"📚 Категория выбрана: {category}")
+
+
+def keydown_event(request):
+    return HttpResponse("⏎ Нажат Enter")
+
+
+def live_search(request):
+    term = request.GET.get("search", "")
+    return HttpResponse(f"🔍 Живой поиск: {term}")
+
+
+@csrf_exempt
+def submit_form(request):
+    name = request.POST.get("name", "")
+    return HttpResponse(f"✅ Форма отправлена: {name}")
+
+
+@csrf_exempt
+def form_reset(request):
+    return HttpResponse("🔄 Форма сброшена")
+
+
+def username_help(request):
+    return HttpResponse("👤 Логин должен быть от 3 до 20 символов.")
+
+
+@csrf_exempt
+def focus_event(request):
+    return HttpResponse("🔍 Кто-то получил фокус внутри блока.")
+
+
+@csrf_exempt
+def blur_event(request):
+    return HttpResponse("💨 Потеря фокуса в блоке.")
+
+
+@csrf_exempt
+def validate_email(request):
+    email = request.POST.get("email", "")
+    return HttpResponse(f"📧 Email проверен: {email}")
+
+
+@csrf_exempt
+def focus_event(request):
+    return HttpResponse("🔍 Кто-то получил фокус внутри блока.")
+
+
+@csrf_exempt
+def blur_event(request):
+    return HttpResponse("💨 Потеря фокуса в блоке.")
+
+
+def clipboard_event(request):
+    action = request.GET.get("action", "")
+    match action:
+        case "copy":
+            return HttpResponse("📄 Вы скопировали текст!")
+        case "cut":
+            return HttpResponse("✂️ Вы вырезали текст!")
+        case "paste":
+            return HttpResponse("📥 Вы вставили текст!")
+        case _:
+            return HttpResponse("🤷 Неизвестное действие.")
