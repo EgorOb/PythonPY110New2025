@@ -105,7 +105,7 @@ def swap_none(request):
     return HttpResponse("<div style='color: gray;'>Этот ответ не будет вставлен</div>")
 
 
-# __________ представления для demo_hx_trigger
+# __________ представления для demo_hx_trigger_mouse
 
 
 def hx_trigger_mouse_view(request):
@@ -127,6 +127,8 @@ def mouse_event(request, event_name):
     message = messages.get(event_name, f"Событие: {event_name}")
     return HttpResponse(message)
 
+
+# __________ представления для demo_hx_trigger_input
 
 def hx_trigger_input_view(request):
     return render(request, 'app_htmx/demo_hx_trigger_input.html')
@@ -182,16 +184,6 @@ def validate_email(request):
     return HttpResponse(f"📧 Email проверен: {email}")
 
 
-@csrf_exempt
-def focus_event(request):
-    return HttpResponse("🔍 Кто-то получил фокус внутри блока.")
-
-
-@csrf_exempt
-def blur_event(request):
-    return HttpResponse("💨 Потеря фокуса в блоке.")
-
-
 def clipboard_event(request):
     action = request.GET.get("action", "")
     match action:
@@ -203,3 +195,49 @@ def clipboard_event(request):
             return HttpResponse("📥 Вы вставили текст!")
         case _:
             return HttpResponse("🤷 Неизвестное действие.")
+
+
+# __________ представления для demo_hx_trigger_drag
+
+def hx_trigger_drag_view(request):
+    return render(request, 'app_htmx/demo_hx_trigger_drag.html')
+
+
+def drag_start(request):
+    return HttpResponse("🚚 Перетаскивание началось (dragstart)")
+
+
+def drag_enter(request):
+    return HttpResponse("📥 Навели на зону сброса (dragenter)")
+
+
+def drag_over(request):
+    return HttpResponse("🌀 Перетаскиваем над зоной (dragover)")
+
+
+def drag_leave(request):
+    return HttpResponse("🏃 Покинули зону сброса (dragleave)")
+
+
+@csrf_exempt
+def drop(request):
+    name_file = request.POST.get('name', '')
+    return HttpResponse(f"✅ Объект {name_file!r} сброшен! (drop)")
+
+
+# __________ представления для demo_hx_trigger_load
+
+def hx_trigger_load_view(request):
+    return render(request, 'app_htmx/demo_hx_trigger_load.html')
+
+
+def load_auto(request):
+    return HttpResponse("<b>✅ Данные загружены автоматически</b>")
+
+
+def load_revealed(request):
+    return HttpResponse("<b>👁️ Элемент стал видимым в viewport!</b>")
+
+
+def load_intersect(request):
+    return HttpResponse("<b>🚀 Загружено при прокрутке и пересечении</b>")
