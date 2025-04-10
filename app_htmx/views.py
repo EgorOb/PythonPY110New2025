@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import random
 from django.views.decorators.csrf import csrf_exempt
+from datetime import datetime
 
 
 def load_products_html(request):  # Возвращаем список продуктов через html
@@ -241,3 +242,68 @@ def load_revealed(request):
 
 def load_intersect(request):
     return HttpResponse("<b>🚀 Загружено при прокрутке и пересечении</b>")
+
+
+# __________ представления для demo_hx_trigger_adaptive
+
+def hx_trigger_adaptive_view(request):
+    return render(request, 'app_htmx/demo_hx_trigger_adaptive.html')
+
+
+def adaptive_every(request):
+    now = datetime.now().strftime("%H:%M:%S")
+    return HttpResponse(f"⏰ Обновлено в {now}")
+
+
+def adaptive_delayed(request):
+    return HttpResponse("✅ Загружено после задержки")
+
+
+def adaptive_resize(request):
+    return HttpResponse("📐 Размер окна изменён!")
+
+
+def adaptive_input(request):
+    value = request.GET.get("search", "")
+    return HttpResponse(f"🔎 Введено: {value}")
+
+
+def adaptive_revealed(request):
+    return HttpResponse("📦 Элемент стал видимым (lazy loaded)")
+
+
+def adaptive_scroll(request):
+    now = datetime.now().strftime("%H:%M:%S")
+    return HttpResponse(f"🧭 Scroll сработал в {now}")
+
+
+from time import sleep
+import random
+
+# Список цветов
+COLORS = ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#9D4EDD"]
+
+counter = 0  # глобальный, если хотите ограничить
+
+
+def next_box(request):
+    global counter
+    if counter >= 10:
+        return HttpResponse('<div class="box">✅ Всё загружено</div>')
+
+    sleep(0.7)  # имитация задержки
+    color = random.choice(COLORS)
+    counter += 1
+
+    html = f'''
+    <div class="box" style="background-color: {color};">Прямоугольник #{counter}</div>
+
+    <div id="lazy-scroll-trigger"
+         hx-get="/htmx/hx-trigger/adaptive/next/"
+         hx-trigger="revealed"
+         hx-target="#lazy-scroll-trigger"
+         hx-swap="outerHTML"
+         class="loading-trigger">
+      👀 Прокрутите ниже для подгрузки...
+    </div>'''
+    return HttpResponse(html)

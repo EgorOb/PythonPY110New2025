@@ -26,4 +26,12 @@ urlpatterns = [
     path("load/auto/", views.load_auto),
     path("load/revealed/", views.load_revealed),
     path("load/intersect/", views.load_intersect),
+    path("adaptive/", views.hx_trigger_adaptive_view, name="hx_trigger_adaptive_view"),
+    path("adaptive/every/", views.adaptive_every),
+    path("adaptive/delayed/", views.adaptive_delayed),
+    path("adaptive/resize/", views.adaptive_resize),
+    path("adaptive/input/", views.adaptive_input),
+    path("adaptive/revealed/", views.adaptive_revealed),
+    path("adaptive/scroll/", views.adaptive_scroll),
+    path("adaptive/next/", views.next_box),
 ]
