@@ -331,8 +331,22 @@ def include_view(request):
 
 
 @csrf_exempt
-def encoding_view(request):
-    return HttpResponse(f"Encoding: {request.content_type}")
+def upload_view(request):
+    uploaded_file = request.FILES.get('myfile')
+    if uploaded_file:
+        # Получаем параметры файла
+        filename = uploaded_file.name
+        content_type = uploaded_file.content_type
+        size = uploaded_file.size
+        content = uploaded_file.read()  # Содержимое файла
+
+        return HttpResponse(
+            f"<b>Имя файла:</b> {filename}<br>"
+            f"<b>Тип:</b> {content_type}<br>"
+            f"<b>Размер:</b> {size / 1024:.2f} KB"
+        )
+
+    return HttpResponse("Файл не был загружен.")
 
 
 def push_url_view(request):

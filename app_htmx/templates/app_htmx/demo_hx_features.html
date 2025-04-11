@@ -37,7 +37,7 @@
   <h2>hx-encoding (для загрузки файлов)</h2>
   <form hx-post="/htmx/features/upload/" hx-encoding="multipart/form-data" hx-target="#upload-result">
     <input type="file" name="myfile">
-    <button>Загрузить</button>
+    <button type="submit">Загрузить</button>
   </form>
   <div id="upload-result" class="box"></div>
 
@@ -46,11 +46,11 @@
   <div id="push-url-result" class="box"></div>
 
   <h2>hx-select</h2>
-  <button hx-get="/htmx/features/fragment/" hx-select=".fragment" hx-target="#select-result">Вставить только фрагмент</button>
+  <button hx-get="/htmx/features/select/" hx-select="#selected" hx-target="#select-result">Вставить только фрагмент</button>
   <div id="select-result" class="box"></div>
 
   <h2>hx-select-oob</h2>
-  <button hx-get="/htmx/features/oob/">Вставить вне потока</button>
+  <button hx-get="/htmx/features/select-oob/">Вставить вне потока</button>
   <div id="oob-result" class="box"></div>
 
   <h2>hx-ext</h2>
