@@ -3,6 +3,8 @@ from django.http import HttpResponse
 import random
 from django.views.decorators.csrf import csrf_exempt
 from datetime import datetime
+from time import sleep
+import random
 
 
 def load_products_html(request):  # Возвращаем список продуктов через html
@@ -277,9 +279,6 @@ def adaptive_scroll(request):
     return HttpResponse(f"🧭 Scroll сработал в {now}")
 
 
-from time import sleep
-import random
-
 # Список цветов
 COLORS = ["#FF6B6B", "#FFD93D", "#6BCB77", "#4D96FF", "#9D4EDD"]
 
@@ -307,3 +306,88 @@ def next_box(request):
       👀 Прокрутите ниже для подгрузки...
     </div>'''
     return HttpResponse(html)
+
+
+# __________ представления для demo_hx_features
+
+def hx_features_view(request):
+    return render(request, 'app_htmx/demo_hx_features.html')
+
+
+@csrf_exempt
+def params_view(request):
+    return HttpResponse(f"hx-params: {dict(request.POST)}")
+
+
+@csrf_exempt
+def vals_view(request):
+    return HttpResponse(f"hx-vals: {dict(request.POST)}")
+
+
+@csrf_exempt
+def include_view(request):
+    included = request.POST.get('shared', '')
+    return HttpResponse(f"hx-include value: {included}")
+
+
+@csrf_exempt
+def encoding_view(request):
+    return HttpResponse(f"Encoding: {request.content_type}")
+
+
+def push_url_view(request):
+    return HttpResponse("<div>New content with push URL</div>")
+
+
+def select_view(request):
+    return HttpResponse("<div><span id='selected'>Selected Content Only</span><p>Ignored</p></div>")
+
+
+def select_oob_view(request):
+    html = """
+    <div hx-swap-oob="true" id="oob-target">🔄 Out of Band Updated!</div>
+    <div>Normal content</div>
+    """
+    return HttpResponse(html)
+
+
+def ext_view(request):
+    return HttpResponse("Custom extension triggered!")
+
+
+@csrf_exempt
+def confirm_view(request):
+    return HttpResponse("hx-confirm: Пользователь подтвердил действие")
+
+
+@csrf_exempt
+def disable_view(request):
+    return HttpResponse("Кнопка была отключена")
+
+
+def indicator_view(request):
+    return HttpResponse("✅ Загрузка завершена")
+
+
+@csrf_exempt
+def headers_view(request):
+    custom = request.headers.get("X-Custom-Header", "Нет заголовка")
+    return HttpResponse(f"Custom header: {custom}")
+
+
+def boost_page(request):
+    return HttpResponse("<h2>📄 Перешли по hx-boost ссылке!</h2>")
+
+
+@csrf_exempt
+def on_event_view(request):
+    return HttpResponse("🎉 Событие обработано через hx-on")
+
+
+def timeout_view(request):
+    sleep(2)
+    return HttpResponse("⌛ Задержка завершилась успешно")
+
+
+def history_view(request):
+    return HttpResponse("<h3>🕘 Это состояние истории</h3>")

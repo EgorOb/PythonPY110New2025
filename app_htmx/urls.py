@@ -10,4 +10,5 @@ urlpatterns = [
     path("hx-target/", include('app_htmx.urls_target')),
     path("hx-swap/", include('app_htmx.urls_swap')),
     path("hx-trigger/", include('app_htmx.urls_trigger')),
+    path("features/", include('app_htmx.urls_features')),
 ]
