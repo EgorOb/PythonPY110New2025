@@ -714,8 +714,6 @@ http://127.0.0.1:8000/htmx/hx-trigger/adaptive/
 
 ## 5. Дополнительные полезные атрибуты
 
-
-
 #### Передача данных
 
 | Событие       | Когда срабатывает                                          |
@@ -724,14 +722,6 @@ http://127.0.0.1:8000/htmx/hx-trigger/adaptive/
 | `hx-vals`     | Добавляет дополнительные данные к запросу (в JSON-формате) | 
 | `hx-include`  | Включает значения других элементов формы/DOM               | 
 | `hx-encoding` | Тип кодировки (обычно multipart/form-data для файлов)      | 
-
-
-
-hx-params	
-hx-vals	
-hx-include	
-hx-encoding	
-
 
 #### Управление запросом
 
@@ -749,20 +739,6 @@ hx-encoding
 | `hx-on`         | Обработчик событий в виде атрибута                     | 
 | `hx-timeout`    | Прерывает запрос, если не ответил за N мс              | 
 | `hx-history`    | Управление историей: false — не сохранять              | 
-
-
-hx-push-url	
-hx-select	
-hx-select-oob	
-hx-ext	
-hx-confirm	
-hx-disable	
-hx-indicator	
-hx-headers	
-hx-boost	
-hx-on	
-hx-timeout	
-hx-history	
 
 Ниже приведены коды для различных задач и примеров их использования. Данный код уже 
 реализован в `demo_hx_features.html` приложения `app_htmx`. Интерактивно ознакомиться можете по ссылке
