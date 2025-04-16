@@ -376,10 +376,12 @@ def confirm_view(request):
 
 @csrf_exempt
 def disable_view(request):
+    sleep(2)  # имитация задержки
     return HttpResponse("Кнопка была отключена")
 
 
 def indicator_view(request):
+    sleep(1.5)
     return HttpResponse("✅ Загрузка завершена")
 
 
@@ -405,3 +407,22 @@ def timeout_view(request):
 
 def history_view(request):
     return HttpResponse("<h3>🕘 Это состояние истории</h3>")
+
+
+def oob_from_cart_view(request):
+    return render(request, 'app_htmx/oob_from_cart.html')
+
+
+@csrf_exempt
+def cart_add_view(request):
+    html = """
+    <!-- Корзина: заменяется через hx-swap-oob -->
+    <div id="cart" hx-swap-oob="true"> В корзине: 1 товар</div>
+
+    <!-- Уведомление: также oob -->
+    <div id="notification" hx-swap-oob="true">Товар добавлен в корзину!</div>
+
+    <!-- Основной отклик -->
+    <div>Товар обрабатывается...</div>
+    """
+    return HttpResponse(html)

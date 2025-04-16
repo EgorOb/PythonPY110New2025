@@ -50,8 +50,20 @@
   <div id="select-result" class="box"></div>
 
   <h2>hx-select-oob</h2>
-  <button hx-get="/htmx/features/select-oob/">Вставить вне потока</button>
+
+  <!-- Кнопка инициирует запрос, а также указывает hx-select-oob -->
+  <button
+    hx-get="/htmx/features/select-oob/"
+    hx-select-oob="#oob-target"
+    hx-target="#oob-result">
+    Вставить вне потока
+  </button>
+
+  <!-- Это место для обычного ответа -->
   <div id="oob-result" class="box"></div>
+
+  <!-- Это место, куда вставится oob-контент -->
+  <div id="oob-target" class="box">📦 Исходное содержимое</div>
 
   <h2>hx-ext</h2>
   <div hx-get="/htmx/features/ext/" hx-trigger="load" hx-ext="client-side-templates" hx-swap="innerHTML">
@@ -61,24 +73,29 @@
   </div>
 
   <h2>hx-confirm</h2>
-  <button hx-delete="/htmx/features/delete/" hx-confirm="Удалить точно?" hx-target="#confirm-result">Удалить</button>
+  <button hx-delete="/htmx/features/confirm-delete/" hx-confirm="Удалить точно?" hx-target="#confirm-result">Удалить</button>
   <div id="confirm-result" class="box"></div>
 
   <h2>hx-disable</h2>
-  <button hx-post="/htmx/features/disable/" hx-disable="true" hx-target="#disable-result">Загрузить</button>
+  <button
+    hx-post="/htmx/features/disable/"
+    hx-target="#disable-result"
+    hx-disable="true">
+    Загрузить
+  </button>
   <div id="disable-result" class="box"></div>
 
   <h2>hx-indicator</h2>
-  <div id="loader" style="display:none">⏳ Загрузка...</div>
+  <div id="loader" style="visibility:hidden">⏳ Загрузка...</div>
   <button hx-get="/htmx/features/indicator/" hx-indicator="#loader" hx-target="#indicator-result">С загрузкой</button>
   <div id="indicator-result" class="box"></div>
 
   <h2>hx-headers</h2>
-  <button hx-post="/htmx/features/headers/" hx-headers='{"X-Custom": "12345"}' hx-target="#headers-result">С заголовком</button>
+  <button hx-post="/htmx/features/headers/" hx-headers='{"X-Custom-Header": "12345"}' hx-target="#headers-result">С заголовком</button>
   <div id="headers-result" class="box"></div>
 
   <h2>hx-boost</h2>
-  <a href="/htmx/boosted/" hx-boost="true">Перейти без перезагрузки</a>
+  <a href="/htmx/features/boost/" hx-boost="true">Перейти без перезагрузки</a>
 
   <h2>hx-on</h2>
   <button hx-post="/htmx/features/on/" hx-on="click: this.innerText='Отправлено!'">Кликни меня</button>

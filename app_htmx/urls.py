@@ -11,4 +11,6 @@ urlpatterns = [
     path("hx-swap/", include('app_htmx.urls_swap')),
     path("hx-trigger/", include('app_htmx.urls_trigger')),
     path("features/", include('app_htmx.urls_features')),
+    path("oob_from_cart/", views.oob_from_cart_view, name="oob_from_cart_view"),
+    path("oob_from_cart/add/", views.cart_add_view, name="cart_add"),
 ]
