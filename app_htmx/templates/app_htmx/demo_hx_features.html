@@ -80,7 +80,7 @@
   <button
     hx-post="/htmx/features/disable/"
     hx-target="#disable-result"
-    hx-disable="true">
+    hx-disabled-elt="this">
     Загрузить
   </button>
   <div id="disable-result" class="box"></div>
@@ -98,11 +98,14 @@
   <a href="/htmx/features/boost/" hx-boost="true">Перейти без перезагрузки</a>
 
   <h2>hx-on</h2>
-  <button hx-post="/htmx/features/on/" hx-on="click: this.innerText='Отправлено!'">Кликни меня</button>
+  <div>Нажми на кнопку, через секунду придет ответ</div>
+  <button hx-post="/htmx/features/on/" hx-on:click="this.innerText='Отправлено!'">Кликни меня</button>
 
-  <h2>hx-timeout</h2>
-  <button hx-get="/htmx/features/timeout/" hx-timeout="1000" hx-target="#timeout-result">С коротким таймаутом</button>
-  <div id="timeout-result" class="box"></div>
+  <h2>hx-request</h2>
+  <button hx-get="/htmx/features/timeout/" hx-request='{"timeout":1000}' hx-target="#timeout-result">С коротким таймаутом (ограничение 1 секунда)</button>
+  <div id="timeout-result" class="box">Не сработает, так как запросу нужно 2 секунды</div>
+  <button hx-get="/htmx/features/timeout/" hx-request='{"timeout":3000}' hx-target="#timeout-result-done">С большим таймаутом (ограничение 3 секунды)</button>
+  <div id="timeout-result-done" class="box">Cработает, так как запросу нужно 2 секунды</div>
 
   <h2>hx-history</h2>
   <button hx-get="/htmx/features/history/" hx-history="false" hx-target="#history-result">Без добавления в историю</button>

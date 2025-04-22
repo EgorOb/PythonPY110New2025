@@ -397,6 +397,7 @@ def boost_page(request):
 
 @csrf_exempt
 def on_event_view(request):
+    sleep(1)
     return HttpResponse("🎉 Событие обработано через hx-on")
 
 
